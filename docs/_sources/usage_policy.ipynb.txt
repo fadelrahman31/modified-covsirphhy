@@ -1,0 +1,1023 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Usage: policy measures\n",
+    "Here, we will analyse the relationship of policy measures and parameter values of SIR-derived ODE models. Policy measures are tracked by [Oxford Covid-19 Government Response Tracker (OxCGRT)](https://github.com/OxCGRT/covid-policy-tracker)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Preparation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:55:19.993280Z",
+     "iopub.status.busy": "2021-01-22T15:55:19.992847Z",
+     "iopub.status.idle": "2021-01-22T15:55:19.995444Z",
+     "shell.execute_reply": "2021-01-22T15:55:19.994971Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# Standard users\n",
+    "# !pip install covsirphy\n",
+    "# Developers (Note: this notebook is in example directory)\n",
+    "import os\n",
+    "os.chdir(\"../\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:55:19.998886Z",
+     "iopub.status.busy": "2021-01-22T15:55:19.998474Z",
+     "iopub.status.idle": "2021-01-22T15:55:20.001034Z",
+     "shell.execute_reply": "2021-01-22T15:55:20.000581Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "from pprint import pprint"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:55:20.003877Z",
+     "iopub.status.busy": "2021-01-22T15:55:20.003463Z",
+     "iopub.status.idle": "2021-01-22T15:55:22.195811Z",
+     "shell.execute_reply": "2021-01-22T15:55:22.196236Z"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "'2.15.0-gamma'"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import covsirphy as cs\n",
+    "cs.__version__"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:55:22.200092Z",
+     "iopub.status.busy": "2021-01-22T15:55:22.199624Z",
+     "iopub.status.idle": "2021-01-22T15:55:26.470874Z",
+     "shell.execute_reply": "2021-01-22T15:55:26.470359Z"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "(Secondary source) Guidotti, E., Ardia, D., (2020), \"COVID-19 Data Hub\", Journal of Open Source Software 5(51):2376, doi: 10.21105/joss.02376.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Standard users and developers\n",
+    "data_loader = cs.DataLoader(\"input\")\n",
+    "# The number of cases (JHU style)\n",
+    "jhu_data = data_loader.jhu(verbose=False)\n",
+    "# Population in each country\n",
+    "population_data = data_loader.population(verbose=False)\n",
+    "# Government Response Tracker (OxCGRT)\n",
+    "oxcgrt_data = data_loader.oxcgrt(verbose=False)\n",
+    "# Description/citation\n",
+    "print(oxcgrt_data.citation)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Class for policy measure analysis\n",
+    "We will `PolicyMeasures` class to find relationship of policy measures and parameter values of SIR-derived ODE models."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:55:26.477930Z",
+     "iopub.status.busy": "2021-01-22T15:55:26.477423Z",
+     "iopub.status.idle": "2021-01-22T15:55:42.033007Z",
+     "shell.execute_reply": "2021-01-22T15:55:42.033417Z"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "197"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Create analyser with tau value 360 [min] (can be changed)\n",
+    "analyser = cs.PolicyMeasures(jhu_data, population_data, oxcgrt_data, tau=360)\n",
+    "# The number of registerd countries\n",
+    "len(analyser.countries)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:55:42.036992Z",
+     "iopub.status.busy": "2021-01-22T15:55:42.036474Z",
+     "iopub.status.idle": "2021-01-22T15:55:42.039060Z",
+     "shell.execute_reply": "2021-01-22T15:55:42.039407Z"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "covsirphy.analysis.scenario.Scenario"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# We can get Scenario instance for detailed scenario analysis\n",
+    "type(analyser.scenario(\"Japan\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Set phases with S-R trend analysis\n",
+    "We will perform S-R trend analysis to set phases in all countries. Countries which do not have **19th phases** will be un-registered for the next analysis. This number will be adjusted for your analysis."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:55:42.042526Z",
+     "iopub.status.busy": "2021-01-22T15:55:42.042076Z",
+     "iopub.status.idle": "2021-01-22T15:56:18.848791Z",
+     "shell.execute_reply": "2021-01-22T15:56:18.849143Z"
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{2: ['Holy See'],\n",
+      " 3: ['Laos', 'Saint Kitts and Nevis', 'Timor-Leste', 'Fiji', 'Tanzania'],\n",
+      " 4: ['Grenada', 'Dominica'],\n",
+      " 6: ['Equatorial Guinea', 'Northern Mariana Islands'],\n",
+      " 7: ['Brunei', 'Saint Vincent and the Grenadines'],\n",
+      " 8: ['Bahamas', 'Antigua and Barbuda', 'Liechtenstein', 'Mauritius',\n",
+      "     'Kyrgyzstan'],\n",
+      " 9: ['Trinidad and Tobago', 'Uzbekistan', 'Australia', 'Cambodia', 'Madagascar',\n",
+      "     'Seychelles', 'Saint Lucia', 'Ethiopia', 'Guam'],\n",
+      " 10: ['Zimbabwe', 'Belize', 'Nepal', 'Republic of the Congo',\n",
+      "      'Papua New Guinea', 'Kenya', 'Kazakhstan', 'Oman',\n",
+      "      'Sao Tome and Principe', 'Jamaica', 'Nicaragua', 'India', 'Vietnam',\n",
+      "      'Angola', 'Botswana', 'Guyana', 'Iceland', 'Iraq', 'Algeria', 'Libya',\n",
+      "      'Maldives', 'Barbados', 'Bhutan', 'Philippines', 'Venezuela', 'Zambia'],\n",
+      " 11: ['Bermuda', 'Chile', 'Brazil', 'Guatemala', 'Eritrea', 'Kuwait', 'Ghana',\n",
+      "      'Virgin Islands, U.S.', 'Paraguay', 'Colombia', 'Rwanda', 'Peru',\n",
+      "      'Bahrain', 'Israel', 'South Africa', 'Gambia', 'Benin', 'Singapore',\n",
+      "      'Bangladesh', 'Monaco', 'Costa Rica', 'El Salvador', 'Bolivia', 'Uganda',\n",
+      "      'Cape Verde', 'Mozambique', 'Djibouti', 'Argentina', 'Honduras', 'Syria',\n",
+      "      'Myanmar', 'Saudi Arabia', 'Malawi'],\n",
+      " 12: ['Panama', 'Mongolia', 'Guinea-Bissau', 'Liberia', 'Morocco', 'Armenia',\n",
+      "      'Dominican Republic', 'San Marino', 'Ecuador', 'Yemen', 'New Zealand',\n",
+      "      'Lesotho', 'Montenegro', 'Mexico', 'Pakistan', 'Kosovo', 'South Sudan',\n",
+      "      'Gabon', 'Swaziland', 'Cameroon', 'Guinea', 'Somalia', \"Cote d'Ivoire\",\n",
+      "      'Senegal', 'Egypt', 'Taiwan', 'Puerto Rico', 'Suriname', 'Namibia'],\n",
+      " 13: ['Central African Republic', 'Andorra', 'Mali', 'Nigeria', 'Sudan',\n",
+      "      'Comoros', 'Tajikistan', 'Palestine', 'Afghanistan', 'Qatar', 'Chad',\n",
+      "      'Moldova', 'Burundi', 'Togo', 'Democratic Republic of the Congo',\n",
+      "      'Malta'],\n",
+      " 14: ['Hungary', 'United Arab Emirates', 'Latvia', 'Lithuania', 'China',\n",
+      "      'Georgia', 'Tunisia', 'Indonesia', 'Belarus', 'Jordan', 'Azerbaijan',\n",
+      "      'Ireland', 'Lebanon', 'Sierra Leone', 'Cuba', 'Russia', 'Niger',\n",
+      "      'Bosnia and Herzegovina', 'Mauritania'],\n",
+      " 15: ['Albania', 'Iran', 'Croatia', 'United States', 'Serbia', 'Bulgaria',\n",
+      "      'North Macedonia', 'Czech Republic', 'Japan', 'Haiti', 'France',\n",
+      "      'Ukraine', 'Greece', 'Spain', 'Belgium', 'Sri Lanka', 'Luxembourg'],\n",
+      " 16: ['Uruguay', 'Slovakia', 'Cyprus', 'Burkina Faso', 'Romania', 'Turkey',\n",
+      "      'Estonia'],\n",
+      " 17: ['Austria', 'Denmark', 'Finland', 'South Korea', 'Poland',\n",
+      "      'United Kingdom', 'Slovenia', 'Thailand', 'Netherlands', 'Norway'],\n",
+      " 18: ['Sweden', 'Canada'],\n",
+      " 19: ['Switzerland', 'Malaysia', 'Italy'],\n",
+      " 20: ['Germany', 'Portugal']}\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Show the number of phases of all countries\n",
+    "analyser.trend()\n",
+    "pprint(analyser.phase_len(), compact=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:18.855979Z",
+     "iopub.status.busy": "2021-01-22T15:56:18.855508Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.492685Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.493046Z"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "5"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Set phases with S-R trend analysis\n",
+    "analyser.trend(min_len=19)\n",
+    "# The number of countries\n",
+    "len(analyser.countries)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.496326Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.495862Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.498211Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.498561Z"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{19: ['Switzerland', 'Malaysia', 'Italy'], 20: ['Germany', 'Portugal']}\n"
+     ]
+    }
+   ],
+   "source": [
+    "phase_len_dict = analyser.phase_len()\n",
+    "pprint(phase_len_dict, compact=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.507862Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.507368Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.528254Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.528611Z"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th>Type</th>\n",
+       "      <th>Start</th>\n",
+       "      <th>End</th>\n",
+       "      <th>Population</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>Country</th>\n",
+       "      <th>Phase</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th rowspan=\"20\" valign=\"top\">Germany</th>\n",
+       "      <th>0th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>18Jan2020</td>\n",
+       "      <td>23Mar2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1st</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>24Mar2020</td>\n",
+       "      <td>06Apr2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2nd</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>07Apr2020</td>\n",
+       "      <td>05May2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3rd</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>06May2020</td>\n",
+       "      <td>04Aug2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>05Aug2020</td>\n",
+       "      <td>12Sep2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>13Sep2020</td>\n",
+       "      <td>07Oct2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>08Oct2020</td>\n",
+       "      <td>20Oct2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>21Oct2020</td>\n",
+       "      <td>27Oct2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>28Oct2020</td>\n",
+       "      <td>03Nov2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>04Nov2020</td>\n",
+       "      <td>10Nov2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>11Nov2020</td>\n",
+       "      <td>17Nov2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>18Nov2020</td>\n",
+       "      <td>24Nov2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>25Nov2020</td>\n",
+       "      <td>01Dec2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>02Dec2020</td>\n",
+       "      <td>08Dec2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>09Dec2020</td>\n",
+       "      <td>15Dec2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>16Dec2020</td>\n",
+       "      <td>21Dec2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>22Dec2020</td>\n",
+       "      <td>28Dec2020</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>29Dec2020</td>\n",
+       "      <td>05Jan2021</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>06Jan2021</td>\n",
+       "      <td>12Jan2021</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>19th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>13Jan2021</td>\n",
+       "      <td>22Jan2021</td>\n",
+       "      <td>82905782</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th rowspan=\"20\" valign=\"top\">Portugal</th>\n",
+       "      <th>0th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>14Mar2020</td>\n",
+       "      <td>08Apr2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1st</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>09Apr2020</td>\n",
+       "      <td>20May2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2nd</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>21May2020</td>\n",
+       "      <td>02Jul2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3rd</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>03Jul2020</td>\n",
+       "      <td>27Aug2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>28Aug2020</td>\n",
+       "      <td>23Sep2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>24Sep2020</td>\n",
+       "      <td>12Oct2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>13Oct2020</td>\n",
+       "      <td>22Oct2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>23Oct2020</td>\n",
+       "      <td>29Oct2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>30Oct2020</td>\n",
+       "      <td>05Nov2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>06Nov2020</td>\n",
+       "      <td>12Nov2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>13Nov2020</td>\n",
+       "      <td>18Nov2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>19Nov2020</td>\n",
+       "      <td>24Nov2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>25Nov2020</td>\n",
+       "      <td>02Dec2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>03Dec2020</td>\n",
+       "      <td>09Dec2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>10Dec2020</td>\n",
+       "      <td>15Dec2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>16Dec2020</td>\n",
+       "      <td>22Dec2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>23Dec2020</td>\n",
+       "      <td>29Dec2020</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>30Dec2020</td>\n",
+       "      <td>05Jan2021</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>06Jan2021</td>\n",
+       "      <td>15Jan2021</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>19th</th>\n",
+       "      <td>Past</td>\n",
+       "      <td>16Jan2021</td>\n",
+       "      <td>22Jan2021</td>\n",
+       "      <td>10283822</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                Type      Start        End  Population\n",
+       "Country  Phase                                        \n",
+       "Germany  0th    Past  18Jan2020  23Mar2020    82905782\n",
+       "         1st    Past  24Mar2020  06Apr2020    82905782\n",
+       "         2nd    Past  07Apr2020  05May2020    82905782\n",
+       "         3rd    Past  06May2020  04Aug2020    82905782\n",
+       "         4th    Past  05Aug2020  12Sep2020    82905782\n",
+       "         5th    Past  13Sep2020  07Oct2020    82905782\n",
+       "         6th    Past  08Oct2020  20Oct2020    82905782\n",
+       "         7th    Past  21Oct2020  27Oct2020    82905782\n",
+       "         8th    Past  28Oct2020  03Nov2020    82905782\n",
+       "         9th    Past  04Nov2020  10Nov2020    82905782\n",
+       "         10th   Past  11Nov2020  17Nov2020    82905782\n",
+       "         11th   Past  18Nov2020  24Nov2020    82905782\n",
+       "         12th   Past  25Nov2020  01Dec2020    82905782\n",
+       "         13th   Past  02Dec2020  08Dec2020    82905782\n",
+       "         14th   Past  09Dec2020  15Dec2020    82905782\n",
+       "         15th   Past  16Dec2020  21Dec2020    82905782\n",
+       "         16th   Past  22Dec2020  28Dec2020    82905782\n",
+       "         17th   Past  29Dec2020  05Jan2021    82905782\n",
+       "         18th   Past  06Jan2021  12Jan2021    82905782\n",
+       "         19th   Past  13Jan2021  22Jan2021    82905782\n",
+       "Portugal 0th    Past  14Mar2020  08Apr2020    10283822\n",
+       "         1st    Past  09Apr2020  20May2020    10283822\n",
+       "         2nd    Past  21May2020  02Jul2020    10283822\n",
+       "         3rd    Past  03Jul2020  27Aug2020    10283822\n",
+       "         4th    Past  28Aug2020  23Sep2020    10283822\n",
+       "         5th    Past  24Sep2020  12Oct2020    10283822\n",
+       "         6th    Past  13Oct2020  22Oct2020    10283822\n",
+       "         7th    Past  23Oct2020  29Oct2020    10283822\n",
+       "         8th    Past  30Oct2020  05Nov2020    10283822\n",
+       "         9th    Past  06Nov2020  12Nov2020    10283822\n",
+       "         10th   Past  13Nov2020  18Nov2020    10283822\n",
+       "         11th   Past  19Nov2020  24Nov2020    10283822\n",
+       "         12th   Past  25Nov2020  02Dec2020    10283822\n",
+       "         13th   Past  03Dec2020  09Dec2020    10283822\n",
+       "         14th   Past  10Dec2020  15Dec2020    10283822\n",
+       "         15th   Past  16Dec2020  22Dec2020    10283822\n",
+       "         16th   Past  23Dec2020  29Dec2020    10283822\n",
+       "         17th   Past  30Dec2020  05Jan2021    10283822\n",
+       "         18th   Past  06Jan2021  15Jan2021    10283822\n",
+       "         19th   Past  16Jan2021  22Jan2021    10283822"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Here, only show the countries which have the most phases\n",
+    "countries_show = max(phase_len_dict.items(), key=lambda x: x[0])[1]\n",
+    "# Show summary\n",
+    "analyser.summary(countries=countries_show)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Parameter estimation\n",
+    "we will estimate the parameter values with SIR-derived ODE models in each country."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.531565Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.531111Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.533426Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.532941Z"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Parameter estimation with SIR-F model\n",
+    "# Caution! This takes too much time.\n",
+    "# analyser.estimate(cs.SIRF, timeout=60)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.536231Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.535783Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.537729Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.538104Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# Show summary\n",
+    "# analyser.summary(countries=countries_show)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Compare the history of parameters\n",
+    "Here, compare the history of parameter values if countries."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.540869Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.540387Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.542238Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.542588Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# All parameter/day parameter/Rt/OxCGRT\n",
+    "# analyser.track().head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### $Rt$: Reprodcution number $\\mathrm{[-]}$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.545310Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.544866Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.546911Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.547273Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# analyser.history(\"Rt\", roll_window=None).tail()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### $\\rho$: Effective contact rate $\\mathrm{[-]}$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.550272Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.549801Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.551784Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.552134Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# analyser.history(\"rho\", roll_window=None).tail()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### $\\sigma$: Recovery rate $\\mathrm{[-]}$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.555173Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.554694Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.556562Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.556912Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# analyser.history(\"sigma\", roll_window=None).tail()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### $\\kappa$: Mortality rate of infected cases $\\mathrm{[-]}$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.559716Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.559236Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.561212Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.561558Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# analyser.history(\"kappa\", roll_window=None).tail()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### $\\theta$: Mortality rate of S$^\\ast$ cases $\\mathrm{[-]}$"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.564613Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.564127Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.565800Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.566248Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# analyser.history(\"theta\", roll_window=None).tail()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## (Experimental): Relationship of OxCGRT index and parameter values\n",
+    "Government responses will impact on parameter values of ODE models about 14 days later. Here, we will investigate on the relationship of [stringency index (from OxCGRT)](https://github.com/OxCGRT/covid-policy-tracker/blob/master/documentation/index_methodology.md) and reproduction number/model parameters.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.572613Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.572118Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.573972Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.574337Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "from matplotlib import pyplot as plt\n",
+    "import seaborn as sns\n",
+    "import pandas as pd"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.577803Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.577319Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.579036Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.579382Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "\"\"\"\n",
+    "df = analyser.track()\n",
+    "param_cols = [\"Rt\", *cs.SIRF.PARAMETERS]\n",
+    "oxcgrt_cols = oxcgrt_data.OXCGRT_VARS[:]\n",
+    "cols = param_cols + oxcgrt_cols\n",
+    "delay = 14\n",
+    "\n",
+    "for col in param_cols:\n",
+    "    df[col] = pd.to_numeric(df[col], errors=\"coerce\")\n",
+    "    df[col] = df.groupby(\"Country\")[col].shift(0 - delay)\n",
+    "\n",
+    "df = df.dropna(how=\"any\")\n",
+    "df = df.loc[:, [\"Date\", \"Country\", *cols]]\n",
+    "track_df = df.copy()\n",
+    "track_df.info()\n",
+    "\"\"\"\n",
+    "None"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.582213Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.581738Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.584096Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.583628Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# Correlation\n",
+    "# df = track_df.copy()\n",
+    "# df.corr().style.background_gradient(axis=None)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2021-01-22T15:56:55.587399Z",
+     "iopub.status.busy": "2021-01-22T15:56:55.586935Z",
+     "iopub.status.idle": "2021-01-22T15:56:55.589101Z",
+     "shell.execute_reply": "2021-01-22T15:56:55.589455Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "\"\"\"\n",
+    "# Scatter plot of Stringency index and Rt\n",
+    "df = track_df.copy()\n",
+    "sns.scatterplot(data=df, x=\"Stringency_index\", y=\"Rt\", hue=\"Country\", legend=\"brief\", marker=\"+\")\n",
+    "bbox_to_anchor=(1.02, 0)\n",
+    "bbox_loc=\"lower left\"\n",
+    "plt.legend(bbox_to_anchor=bbox_to_anchor, loc=bbox_loc, borderaxespad=0)\n",
+    "plt.title(\"Relationship of Stringency index and reproduction number\")\n",
+    "plt.ylabel(\"Reproduction number\")\n",
+    "plt.xlabel(\"Stringency index\")\n",
+    "plt.show()\n",
+    "\"\"\"\n",
+    "None"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3.9.1 64-bit ('.venv')",
+   "metadata": {
+    "interpreter": {
+     "hash": "aa53c8c6e6798222a2084c11cc25017700a8d3ad495b587e3a634f357767115f"
+    }
+   },
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.1"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

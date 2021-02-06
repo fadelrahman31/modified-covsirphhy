@@ -1,0 +1,639 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>CovsirPhy introduction &mdash; CovsirPhy  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CovsirPhy introduction" href="README.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> CovsirPhy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.15.0-kappa
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">CovsirPhy introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/INSTALLATION.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/INSTALLATION.html#dataset-preparation">Dataset preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_quickest.html">Usage: quickest tour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_quick.html">Usage: scenario analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_dataset.html">Usage: datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_phases.html">Usage: phases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_theoretical.html">Usage: SIR-derived models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_policy.html">Usage: policy measures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covsirphy.html">covsirphy package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/TERM.html">Term definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SECURITY.html">Security policy of CovsirPhy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Guideline of contribution</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">CovsirPhy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>CovsirPhy introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<a class="reference internal image-reference" href="_images/covsirphy_headline.png"><img alt="CovsirPhy: COVID-19 analysis with phase-dependent SIRs" src="_images/covsirphy_headline.png" style="width: 390px;" /></a>
+<div class="line-block">
+<div class="line"><a class="reference external" href="https://badge.fury.io/py/covsirphy"><img alt="PyPI version" src="https://badge.fury.io/py/covsirphy.svg" /></a> <a class="reference external" href="https://pepy.tech/project/covsirphy"><img alt="Downloads" src="https://pepy.tech/badge/covsirphy" /></a> <a class="reference external" href="https://badge.fury.io/py/covsirphy"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/covsirphy" /></a> <a class="reference external" href="https://semaphoreci.com/lisphilar/covid19-sir"><img alt="Build Status" src="https://semaphoreci.com/api/v1/lisphilar/covid19-sir/branches/master/shields_badge.svg" /></a></div>
+<div class="line"><a class="reference external" href="https://github.com/lisphilar/covid19-sir/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/lisphilar/covid19-sir" /></a> <a class="reference external" href="https://codeclimate.com/github/lisphilar/covid19-sir/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/eb97eaf9804f436062b9/maintainability" /></a> <a class="reference external" href="https://codeclimate.com/github/lisphilar/covid19-sir/test_coverage"><img alt="Test Coverage" src="https://api.codeclimate.com/v1/badges/eb97eaf9804f436062b9/test_coverage" /></a> <a class="reference external" href="https://www.codetriage.com/lisphilar/covid19-sir"><img alt="Open Source Helpers" src="https://www.codetriage.com/lisphilar/covid19-sir/badges/users.svg" /></a></div>
+</div>
+<div class="section" id="covsirphy-introduction">
+<h1>CovsirPhy introduction<a class="headerlink" href="#covsirphy-introduction" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/index.html">Documentation</a>
+|
+<a class="reference external" href="https://lisphilar.github.io/covid19-sir/INSTALLATION.html">Installation</a>
+| <a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_quickest.html">Quickest
+usage</a>
+| <a class="reference external" href="https://lisphilar.github.io/covid19-sir/covsirphy.html">API
+reference</a> |
+<a class="reference external" href="https://github.com/lisphilar/covid19-sir">GitHub</a> | <a class="reference external" href="https://qiita.com/tags/covsirphy">Qiita
+(Japanese)</a></p>
+<p>CovsirPhy is a Python library for COVID-19 (Coronavirus disease 2019)
+data analysis with phase-dependent SIR-derived ODE models. We can
+download datasets and analyse them easily. Scenario analysis with
+CovsirPhy enables us to make data-informed decisions. Please refer to
+“Method” part of <a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">Kaggle Notebook: COVID-19 data with SIR
+model</a>
+to understand the methods.</p>
+<div class="section" id="functionalities">
+<h2>Functionalities<a class="headerlink" href="#functionalities" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_dataset.html">Data preparation and data
+visualization</a></p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_phases.html">Phase setting with S-R Trend
+analysis</a></p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_theoretical.html">Numerical simulation of ODE
+models</a></p></li>
+<li><p>Stable: SIR, SIR-D and SIR-F model</p></li>
+<li><p>Development: SIR-FV and SEWIR-F model</p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_quickest.html">Phase-dependent parameter estimation of ODE
+models</a></p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_quick.html">Scenario
+analysis</a>:
+Simulate the number of cases with user-defined parameter values</p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_policy.html">(In development): Find the relationship of government response and
+parameter
+values</a></p></li>
+</ul>
+</div>
+<div class="section" id="inspiration">
+<h2>Inspiration<a class="headerlink" href="#inspiration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Monitor the spread of COVID-19</p></li>
+<li><p>Keep track parameter values/reproduction number in each
+country/province</p></li>
+<li><p>Find the relationship of reproductive number and measures taken by
+each country</p></li>
+</ul>
+<p>If you have ideas or need new functionalities, please join this project.
+Any suggestions with <a class="reference external" href="https://github.com/lisphilar/covid19-sir/issues/new/choose">Github
+Issues</a>
+are always welcomed. Please read <a class="reference external" href="https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html">Guideline of
+contribution</a>
+in advance.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The latest stable version of CovsirPhy is available at <a class="reference external" href="https://pypi.org/project/covsirphy/">PyPI (The Python
+Package Index): covsirphy</a> and
+supports Python 3.7 or newer versions. Details are explained in
+<a class="reference external" href="https://lisphilar.github.io/covid19-sir/INSTALLATION.html">Documentation:
+Installation</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --upgrade covsirphy
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Quickest tour of CovsirPhy is here. The following codes analyze the
+records in Japan, but we can change the country name when creating
+<code class="docutils literal notranslate"><span class="pre">Scenario</span></code> class instance for your own analysis.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">covsirphy</span> <span class="k">as</span> <span class="nn">cs</span>
+<span class="c1"># Download and update datasets</span>
+<span class="n">data_loader</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
+<span class="n">jhu_data</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">jhu</span><span class="p">()</span>
+<span class="n">population_data</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">population</span><span class="p">()</span>
+<span class="c1"># Check records</span>
+<span class="n">snl</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">Scenario</span><span class="p">(</span><span class="n">jhu_data</span><span class="p">,</span> <span class="n">population_data</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="s2">&quot;Japan&quot;</span><span class="p">)</span>
+<span class="n">snl</span><span class="o">.</span><span class="n">records</span><span class="p">()</span>
+<span class="c1"># S-R trend analysis</span>
+<span class="n">snl</span><span class="o">.</span><span class="n">trend</span><span class="p">()</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="c1"># Parameter estimation of SIR-F model</span>
+<span class="n">snl</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">SIRF</span><span class="p">)</span>
+<span class="c1"># History of reproduction number</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">snl</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;Rt&quot;</span><span class="p">)</span>
+<span class="c1"># History of parameters</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">snl</span><span class="o">.</span><span class="n">history_rate</span><span class="p">()</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">snl</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span>
+<span class="c1"># Simulation for 30 days</span>
+<span class="n">snl</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">snl</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Further information:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/index.html">CovsirPhy
+documentation</a></p></li>
+<li><p>Example scripts in <a class="reference external" href="https://github.com/lisphilar/covid19-sir/tree/master/example">“example” directory of this
+repository</a></p></li>
+<li><p><a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">Kaggle: COVID-19 data with SIR
+model</a></p></li>
+</ul>
+</div>
+<div class="section" id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
+<p>Please support this project as a developer (or a backer). <a class="reference external" href="https://opencollective.com/covsirphy"><img alt="Become a backer" src="https://opencollective.com/covsirphy/tiers/backer.svg?avatarHeight=36&amp;width=600" /></a></p>
+</div>
+<div class="section" id="license-apache-license-2-0">
+<h2>License: Apache License 2.0<a class="headerlink" href="#license-apache-license-2-0" title="Permalink to this headline">¶</a></h2>
+<p>Please refer to
+<a class="reference external" href="https://github.com/lisphilar/covid19-sir/blob/master/LICENSE">LICENSE</a>
+file.</p>
+</div>
+<div class="section" id="citation">
+<h2>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
+<p>We have no original papers the author and contributors wrote, but please
+cite this package as follows.</p>
+<p>CovsirPhy Development Team (2020), CovsirPhy, Python package for
+COVID-19 analysis with SIR-derived ODE models,
+<a class="reference external" href="https://github.com/lisphilar/covid19-sir">https://github.com/lisphilar/covid19-sir</a></p>
+<p>If you want to use SIR-F/SIR-FV/SEWIR-F model, S-R trend analysis,
+phase-dependent approach to SIR-derived models, and other scientific
+method performed with CovsirPhy, please cite the next Kaggle notebook.</p>
+<p>Lisphilar (2020), Kaggle notebook, COVID-19 data with SIR model,
+<a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model</a></p>
+</div>
+<div class="section" id="related-work">
+<h2>Related work<a class="headerlink" href="#related-work" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">Reproduction number evolution in each country:</div>
+<div class="line">Ilyass Tabiai and Houda Kaddioui (2020), GitHub pages, COVID19 R0
+tracker, <a class="reference external" href="https://ilylabs.github.io/projects/COVID-trackers/">https://ilylabs.github.io/projects/COVID-trackers/</a></div>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">CovsirPhy introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="README.html#functionalities">Functionalities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#inspiration">Inspiration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#support">Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#license-apache-license-2-0">License: Apache License 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#citation">Citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="README.html#related-work">Related work</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/INSTALLATION.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/INSTALLATION.html#dataset-preparation">Dataset preparation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="markdown/INSTALLATION.html#recommended-datasets">1. Recommended datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="markdown/INSTALLATION.html#covid-19-data-hub">COVID-19 Data Hub</a></li>
+<li class="toctree-l3"><a class="reference internal" href="markdown/INSTALLATION.html#open-covid-19-data-working-group">Open COVID-19 Data Working Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="markdown/INSTALLATION.html#our-world-in-data">Our World In Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="markdown/INSTALLATION.html#world-bank-open-data">World Bank Open Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="markdown/INSTALLATION.html#datasets-for-covsirphy">Datasets for CovsirPhy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="markdown/INSTALLATION.html#how-to-request-new-data-loader">2. How to request new data loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="markdown/INSTALLATION.html#use-a-local-csv-file-which-has-the-number-of-cases">3. Use a local CSV file which has the number of cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="markdown/INSTALLATION.html#create-countrydata-instance">3.1. Create CountryData instance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="markdown/INSTALLATION.html#convert-to-jhudata-instance">3.2. Convert to JHUData instance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="markdown/INSTALLATION.html#set-population-values">3.3. Set population values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="markdown/INSTALLATION.html#data-loading-in-kaggle-notebook">4. Data loading in Kaggle Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="markdown/INSTALLATION.html#acknowledgement">5. Acknowledgement</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage_quickest.html">Usage: quickest tour</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#Preparation">Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#Dataset-preparation">Dataset preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#Start-scenario-analysis">Start scenario analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#Check-records">Check records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#S-R-trend-analysis">S-R trend analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#Hyperparameter-estimation-of-ODE-models">Hyperparameter estimation of ODE models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#History-of-reproduction-number">History of reproduction number</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#History-of-parameters">History of parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quickest.html#Simulate-the-number-of-cases">Simulate the number of cases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage_quick.html">Usage: scenario analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Preparation">Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Dataset-preparation">Dataset preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Start-scenario-analysis">Start scenario analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Check-records">Check records</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#S-R-trend-analysis">S-R trend analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Hyperparameter-estimation-of-ODE-models">Hyperparameter estimation of ODE models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Accuracy-of-estimation">Accuracy of estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Get-parameter-value">Get parameter value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Show-parameter-history">Show parameter history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Show-the-history-of-reproduction-number">Show the history of reproduction number</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Simulate-the-number-of-cases">Simulate the number of cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Main-scenario">Main scenario</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Medicine-scenario">Medicine scenario</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Short-term-prediction-of-parameter-values">Short-term prediction of parameter values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Compare-the-scenarios">Compare the scenarios</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_quick.html#Change-rate-of-parameters-in-main-scenario">Change rate of parameters in main scenario</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage_quick.html#Retrospective-analysis">Retrospective analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage_dataset.html">Usage: datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#Preparation">Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#Dataset-preparation">Dataset preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#The-number-of-cases-(JHU-style)">The number of cases (JHU style)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#Linelist-of-case-reports">Linelist of case reports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#Population-in-each-country">Population in each country</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#Government-Response-Tracker-(OxCGRT)">Government Response Tracker (OxCGRT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#The-number-of-tests">The number of tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#The-number-of-vaccinations">The number of vaccinations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#Population-pyramid">Population pyramid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_dataset.html#Japan-specific-dataset">Japan-specific dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage_phases.html">Usage: phases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage_phases.html#Preperation">Preperation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_phases.html#Set-phases-with-S-R-trend-analysis">Set phases with S-R trend analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_phases.html#Remove-un-necessary-change-points-manually">Remove un-necessary change points manually</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_phases.html#Separate-phases-manually">Separate phases manually</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_phases.html#Disable/enable-phases-manually">Disable/enable phases manually</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_phases.html#Add-phases-one-by-one">Add phases one by one</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage_theoretical.html">Usage: SIR-derived models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#Preparation">Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#Create-example-dataset-with-theoretical-values">Create example dataset with theoretical values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#SIR-model">SIR model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage_theoretical.html#Non-dimensional-SIR-model">Non-dimensional SIR model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#SIR-D-model">SIR-D model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage_theoretical.html#Non-dimensional-SIR-D-model">Non-dimensional SIR-D model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#SIR-F-model">SIR-F model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage_theoretical.html#Non-dimensional-SIR-F-model">Non-dimensional SIR-F model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#SEWIR-F-model-(SIR-F-with-exposed/waiting-cases)">SEWIR-F model (SIR-F with exposed/waiting cases)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#Non-dimensional-SEWIR-F-model">Non-dimensional SEWIR-F model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#SIR-FV-model-(SIR-F-model-with-vaccination)">SIR-FV model (SIR-F model with vaccination)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_theoretical.html#Scenario-analysis-with-theoretical-data">Scenario analysis with theoretical data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage_theoretical.html#Compare-the-scenarios">Compare the scenarios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage_theoretical.html#Simulation-of-each-scenario">Simulation of each scenario</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage_policy.html">Usage: policy measures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage_policy.html#Preparation">Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_policy.html#Class-for-policy-measure-analysis">Class for policy measure analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_policy.html#Set-phases-with-S-R-trend-analysis">Set phases with S-R trend analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_policy.html#Parameter-estimation">Parameter estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage_policy.html#Compare-the-history-of-parameters">Compare the history of parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="usage_policy.html#Rt:-Reprodcution-number-\mathrm{[-]}"><span class="math notranslate nohighlight">\(Rt\)</span>: Reprodcution number <span class="math notranslate nohighlight">\(\mathrm{[-]}\)</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage_policy.html#\rho:-Effective-contact-rate-\mathrm{[-]}"><span class="math notranslate nohighlight">\(\rho\)</span>: Effective contact rate <span class="math notranslate nohighlight">\(\mathrm{[-]}\)</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage_policy.html#\sigma:-Recovery-rate-\mathrm{[-]}"><span class="math notranslate nohighlight">\(\sigma\)</span>: Recovery rate <span class="math notranslate nohighlight">\(\mathrm{[-]}\)</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage_policy.html#\kappa:-Mortality-rate-of-infected-cases-\mathrm{[-]}"><span class="math notranslate nohighlight">\(\kappa\)</span>: Mortality rate of infected cases <span class="math notranslate nohighlight">\(\mathrm{[-]}\)</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="usage_policy.html#\theta:-Mortality-rate-of-S^\ast-cases-\mathrm{[-]}"><span class="math notranslate nohighlight">\(\theta\)</span>: Mortality rate of S<span class="math notranslate nohighlight">\(^\ast\)</span> cases <span class="math notranslate nohighlight">\(\mathrm{[-]}\)</span></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="usage_policy.html#(Experimental):-Relationship-of-OxCGRT-index-and-parameter-values">(Experimental): Relationship of OxCGRT index and parameter values</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="covsirphy.html">covsirphy package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="covsirphy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="covsirphy.analysis.html">covsirphy.analysis package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.analysis.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.analysis.html#module-covsirphy.analysis.data_handler">covsirphy.analysis.data_handler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.analysis.html#module-covsirphy.analysis.example_data">covsirphy.analysis.example_data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.analysis.html#module-covsirphy.analysis.model_validator">covsirphy.analysis.model_validator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.analysis.html#module-covsirphy.analysis.param_tracker">covsirphy.analysis.param_tracker module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.analysis.html#module-covsirphy.analysis.scenario">covsirphy.analysis.scenario module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="covsirphy.cleaning.html">covsirphy.cleaning package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.cbase">covsirphy.cleaning.cbase module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.country_data">covsirphy.cleaning.country_data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.covid19datahub">covsirphy.cleaning.covid19datahub module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.dataloader">covsirphy.cleaning.dataloader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.japan_data">covsirphy.cleaning.japan_data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.jhu_complement">covsirphy.cleaning.jhu_complement module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.jhu_data">covsirphy.cleaning.jhu_data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.linelist">covsirphy.cleaning.linelist module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.oxcgrt">covsirphy.cleaning.oxcgrt module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.pcr_data">covsirphy.cleaning.pcr_data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.population">covsirphy.cleaning.population module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.pyramid">covsirphy.cleaning.pyramid module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.term">covsirphy.cleaning.term module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.cleaning.html#module-covsirphy.cleaning.vaccine_data">covsirphy.cleaning.vaccine_data module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="covsirphy.ode.html">covsirphy.ode package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.ode.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.ode.html#module-covsirphy.ode.mbase">covsirphy.ode.mbase module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.ode.html#module-covsirphy.ode.sewirf">covsirphy.ode.sewirf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.ode.html#module-covsirphy.ode.sir">covsirphy.ode.sir module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.ode.html#module-covsirphy.ode.sird">covsirphy.ode.sird module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.ode.html#module-covsirphy.ode.sirf">covsirphy.ode.sirf module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.ode.html#module-covsirphy.ode.sirfv">covsirphy.ode.sirfv module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="covsirphy.phase.html">covsirphy.phase package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.phase.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.phase.html#module-covsirphy.phase.phase_estimator">covsirphy.phase.phase_estimator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.phase.html#module-covsirphy.phase.phase_series">covsirphy.phase.phase_series module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.phase.html#module-covsirphy.phase.phase_unit">covsirphy.phase.phase_unit module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.phase.html#module-covsirphy.phase.sr_change">covsirphy.phase.sr_change module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.phase.html#module-covsirphy.phase.trend">covsirphy.phase.trend module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="covsirphy.simulation.html">covsirphy.simulation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.simulation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.simulation.html#module-covsirphy.simulation.estimator">covsirphy.simulation.estimator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.simulation.html#module-covsirphy.simulation.simulator">covsirphy.simulation.simulator module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="covsirphy.util.html">covsirphy.util package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.util.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.util.html#module-covsirphy.util.argument">covsirphy.util.argument module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.util.html#module-covsirphy.util.error">covsirphy.util.error module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.util.html#module-covsirphy.util.file">covsirphy.util.file module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.util.html#module-covsirphy.util.map">covsirphy.util.map module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.util.html#module-covsirphy.util.optimize">covsirphy.util.optimize module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.util.html#module-covsirphy.util.plotting">covsirphy.util.plotting module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.util.html#module-covsirphy.util.stopwatch">covsirphy.util.stopwatch module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="covsirphy.worldwide.html">covsirphy.worldwide package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.worldwide.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="covsirphy.worldwide.html#module-covsirphy.worldwide.policy">covsirphy.worldwide.policy module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/TERM.html">Term definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#our-pledge">Our Pledge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#our-standards">Our Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#our-responsibilities">Our Responsibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#scope">Scope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#enforcement">Enforcement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CODE_OF_CONDUCT.html#attribution">Attribution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SECURITY.html">Security policy of CovsirPhy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SECURITY.html#supported-versions">Supported versions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SECURITY.html#reporting-a-vulnerability">Reporting a vulnerability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SECURITY.html#disclosure-policy">Disclosure policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SECURITY.html#comments-on-this-policy">Comments on this policy</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Guideline of contribution</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#clone-covsirphy-repository-and-install-dependencies">Clone CovsirPhy repository and install dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CONTRIBUTING.html#clone-fork-the-repository">Clone/Fork the repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CONTRIBUTING.html#setup-python">Setup Python</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CONTRIBUTING.html#install-poetry-windows">Install Poetry (Windows)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CONTRIBUTING.html#install-poetry-linux-wsl-macos">Install Poetry (Linux, WSL, macOS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CONTRIBUTING.html#install-dependencies">Install dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#issues">Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#pull-request">Pull request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#run-tests">Run tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#versioning">Versioning</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="README.html" class="btn btn-neutral float-right" title="CovsirPhy introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, CovsirPhy Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>CovsirPhy introduction &mdash; CovsirPhy  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="markdown/INSTALLATION.html" />
+    <link rel="prev" title="CovsirPhy introduction" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> CovsirPhy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.15.0-kappa
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CovsirPhy introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#functionalities">Functionalities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inspiration">Inspiration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#support">Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license-apache-license-2-0">License: Apache License 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#citation">Citation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#related-work">Related work</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/INSTALLATION.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/INSTALLATION.html#dataset-preparation">Dataset preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_quickest.html">Usage: quickest tour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_quick.html">Usage: scenario analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_dataset.html">Usage: datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_phases.html">Usage: phases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_theoretical.html">Usage: SIR-derived models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage_policy.html">Usage: policy measures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covsirphy.html">covsirphy package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/TERM.html">Term definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SECURITY.html">Security policy of CovsirPhy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Guideline of contribution</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CovsirPhy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>CovsirPhy introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/README.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="line-block">
+<div class="line"><a class="reference external" href="https://badge.fury.io/py/covsirphy"><img alt="PyPI version" src="https://badge.fury.io/py/covsirphy.svg" /></a> <a class="reference external" href="https://pepy.tech/project/covsirphy"><img alt="Downloads" src="https://pepy.tech/badge/covsirphy" /></a> <a class="reference external" href="https://badge.fury.io/py/covsirphy"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/covsirphy" /></a> <a class="reference external" href="https://semaphoreci.com/lisphilar/covid19-sir"><img alt="Build Status" src="https://semaphoreci.com/api/v1/lisphilar/covid19-sir/branches/master/shields_badge.svg" /></a></div>
+<div class="line"><a class="reference external" href="https://github.com/lisphilar/covid19-sir/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/lisphilar/covid19-sir" /></a> <a class="reference external" href="https://codeclimate.com/github/lisphilar/covid19-sir/maintainability"><img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/eb97eaf9804f436062b9/maintainability" /></a> <a class="reference external" href="https://codeclimate.com/github/lisphilar/covid19-sir/test_coverage"><img alt="Test Coverage" src="https://api.codeclimate.com/v1/badges/eb97eaf9804f436062b9/test_coverage" /></a> <a class="reference external" href="https://www.codetriage.com/lisphilar/covid19-sir"><img alt="Open Source Helpers" src="https://www.codetriage.com/lisphilar/covid19-sir/badges/users.svg" /></a></div>
+</div>
+<div class="section" id="covsirphy-introduction">
+<h1>CovsirPhy introduction<a class="headerlink" href="#covsirphy-introduction" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/index.html">Documentation</a>
+|
+<a class="reference external" href="https://lisphilar.github.io/covid19-sir/INSTALLATION.html">Installation</a>
+| <a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_quickest.html">Quickest
+usage</a>
+| <a class="reference external" href="https://lisphilar.github.io/covid19-sir/covsirphy.html">API
+reference</a> |
+<a class="reference external" href="https://github.com/lisphilar/covid19-sir">GitHub</a> | <a class="reference external" href="https://qiita.com/tags/covsirphy">Qiita
+(Japanese)</a></p>
+<p>CovsirPhy is a Python library for COVID-19 (Coronavirus disease 2019)
+data analysis with phase-dependent SIR-derived ODE models. We can
+download datasets and analyse them easily. Scenario analysis with
+CovsirPhy enables us to make data-informed decisions. Please refer to
+“Method” part of <a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">Kaggle Notebook: COVID-19 data with SIR
+model</a>
+to understand the methods.</p>
+<div class="section" id="functionalities">
+<h2>Functionalities<a class="headerlink" href="#functionalities" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_dataset.html">Data preparation and data
+visualization</a></p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_phases.html">Phase setting with S-R Trend
+analysis</a></p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_theoretical.html">Numerical simulation of ODE
+models</a></p></li>
+<li><p>Stable: SIR, SIR-D and SIR-F model</p></li>
+<li><p>Development: SIR-FV and SEWIR-F model</p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_quickest.html">Phase-dependent parameter estimation of ODE
+models</a></p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_quick.html">Scenario
+analysis</a>:
+Simulate the number of cases with user-defined parameter values</p></li>
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_policy.html">(In development): Find the relationship of government response and
+parameter
+values</a></p></li>
+</ul>
+</div>
+<div class="section" id="inspiration">
+<h2>Inspiration<a class="headerlink" href="#inspiration" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Monitor the spread of COVID-19</p></li>
+<li><p>Keep track parameter values/reproduction number in each
+country/province</p></li>
+<li><p>Find the relationship of reproductive number and measures taken by
+each country</p></li>
+</ul>
+<p>If you have ideas or need new functionalities, please join this project.
+Any suggestions with <a class="reference external" href="https://github.com/lisphilar/covid19-sir/issues/new/choose">Github
+Issues</a>
+are always welcomed. Please read <a class="reference external" href="https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html">Guideline of
+contribution</a>
+in advance.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The latest stable version of CovsirPhy is available at <a class="reference external" href="https://pypi.org/project/covsirphy/">PyPI (The Python
+Package Index): covsirphy</a> and
+supports Python 3.7 or newer versions. Details are explained in
+<a class="reference external" href="https://lisphilar.github.io/covid19-sir/INSTALLATION.html">Documentation:
+Installation</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --upgrade covsirphy
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Quickest tour of CovsirPhy is here. The following codes analyze the
+records in Japan, but we can change the country name when creating
+<code class="docutils literal notranslate"><span class="pre">Scenario</span></code> class instance for your own analysis.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">covsirphy</span> <span class="k">as</span> <span class="nn">cs</span>
+<span class="c1"># Download and update datasets</span>
+<span class="n">data_loader</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
+<span class="n">jhu_data</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">jhu</span><span class="p">()</span>
+<span class="n">population_data</span> <span class="o">=</span> <span class="n">data_loader</span><span class="o">.</span><span class="n">population</span><span class="p">()</span>
+<span class="c1"># Check records</span>
+<span class="n">snl</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">Scenario</span><span class="p">(</span><span class="n">jhu_data</span><span class="p">,</span> <span class="n">population_data</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="s2">&quot;Japan&quot;</span><span class="p">)</span>
+<span class="n">snl</span><span class="o">.</span><span class="n">records</span><span class="p">()</span>
+<span class="c1"># S-R trend analysis</span>
+<span class="n">snl</span><span class="o">.</span><span class="n">trend</span><span class="p">()</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="c1"># Parameter estimation of SIR-F model</span>
+<span class="n">snl</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">SIRF</span><span class="p">)</span>
+<span class="c1"># History of reproduction number</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">snl</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;Rt&quot;</span><span class="p">)</span>
+<span class="c1"># History of parameters</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">snl</span><span class="o">.</span><span class="n">history_rate</span><span class="p">()</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">snl</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span>
+<span class="c1"># Simulation for 30 days</span>
+<span class="n">snl</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">snl</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Further information:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/index.html">CovsirPhy
+documentation</a></p></li>
+<li><p>Example scripts in <a class="reference external" href="https://github.com/lisphilar/covid19-sir/tree/master/example">“example” directory of this
+repository</a></p></li>
+<li><p><a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">Kaggle: COVID-19 data with SIR
+model</a></p></li>
+</ul>
+</div>
+<div class="section" id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
+<p>Please support this project as a developer (or a backer). <a class="reference external" href="https://opencollective.com/covsirphy"><img alt="Become a backer" src="https://opencollective.com/covsirphy/tiers/backer.svg?avatarHeight=36&amp;width=600" /></a></p>
+</div>
+<div class="section" id="license-apache-license-2-0">
+<h2>License: Apache License 2.0<a class="headerlink" href="#license-apache-license-2-0" title="Permalink to this headline">¶</a></h2>
+<p>Please refer to
+<a class="reference external" href="https://github.com/lisphilar/covid19-sir/blob/master/LICENSE">LICENSE</a>
+file.</p>
+</div>
+<div class="section" id="citation">
+<h2>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
+<p>We have no original papers the author and contributors wrote, but please
+cite this package as follows.</p>
+<p>CovsirPhy Development Team (2020), CovsirPhy, Python package for
+COVID-19 analysis with SIR-derived ODE models,
+<a class="reference external" href="https://github.com/lisphilar/covid19-sir">https://github.com/lisphilar/covid19-sir</a></p>
+<p>If you want to use SIR-F/SIR-FV/SEWIR-F model, S-R trend analysis,
+phase-dependent approach to SIR-derived models, and other scientific
+method performed with CovsirPhy, please cite the next Kaggle notebook.</p>
+<p>Lisphilar (2020), Kaggle notebook, COVID-19 data with SIR model,
+<a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model</a></p>
+</div>
+<div class="section" id="related-work">
+<h2>Related work<a class="headerlink" href="#related-work" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">Reproduction number evolution in each country:</div>
+<div class="line">Ilyass Tabiai and Houda Kaddioui (2020), GitHub pages, COVID19 R0
+tracker, <a class="reference external" href="https://ilylabs.github.io/projects/COVID-trackers/">https://ilylabs.github.io/projects/COVID-trackers/</a></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="markdown/INSTALLATION.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="CovsirPhy introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, CovsirPhy Development Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
