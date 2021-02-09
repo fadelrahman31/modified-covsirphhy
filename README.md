@@ -3,7 +3,7 @@ _for **research intentional purposes only**_ all credits and updated real-time p
 This repository was modified by [Fadel Nararia Rahman](https://fadelrahman.com) for COVID-19 research purposes in Indonesia.
 
 [Covsirphy Readme Docs](https://lisphilar.github.io/covid19-sir)<br>
-Latest stable Package version release : 2.15.0
+Latest stable Package version release : 2.16.0
 
 > **List of Updated Features**
 
