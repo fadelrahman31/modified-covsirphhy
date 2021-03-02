@@ -11,18 +11,19 @@ except ImportError:
 from covsirphy.__version__ import __version__
 # util
 from covsirphy.util.plotting import line_plot, line_plot_multiple
-from covsirphy.util.map import jpn_map
 from covsirphy.util.optimize import Optimizer
 from covsirphy.util.stopwatch import StopWatch
 from covsirphy.util.error import deprecate
 from covsirphy.util.error import SubsetNotFoundError, ScenarioNotFoundError, UnExecutedError
 from covsirphy.util.error import PCRIncorrectPreconditionError, NotInteractiveError, UnExpectedValueError
+from covsirphy.util.error import NotRegisteredMainError, NotRegisteredExtraError
 from covsirphy.util.file import save_dataframe
 from covsirphy.util.argument import find_args
 from covsirphy.util.term import Term, Word
 # visualization
 from covsirphy.visualization.vbase import VisualizeBase
 from covsirphy.visualization.colored_map import ColoredMap
+from covsirphy.visualization.japan_map import jpn_map
 # cleaning
 from covsirphy.cleaning.cbase import CleaningBase
 from covsirphy.cleaning.jhu_data import JHUData
@@ -86,7 +87,7 @@ __all__ = [
     "PolicyMeasures",
     "SubsetNotFoundError", "ScenarioNotFoundError", "UnExecutedError",
     "PCRIncorrectPreconditionError", "NotInteractiveError",
-    "UnExpectedValueError",
+    "UnExpectedValueError", "NotRegisteredMainError", "NotRegisteredExtraError",
     "VisualizeBase", "ColoredMap",
     # Deprecated
     "Population", "Word", "jpn_map",
