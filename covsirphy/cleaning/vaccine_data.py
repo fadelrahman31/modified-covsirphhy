@@ -39,7 +39,7 @@ class VaccineData(CleaningBase):
         CleaningBase.VAC, CleaningBase.V_ONCE, CleaningBase.V_FULL]
     VAC_SUBSET_COLS = [CleaningBase.DATE, CleaningBase.VAC, CleaningBase.V_ONCE, CleaningBase.V_FULL]
 
-    def __init__(self, filename, force=False, verbose=1, df=None):
+    def __init__(self, filename, df, force=False, verbose=1):
         Path(filename).parent.mkdir(exist_ok=True, parents=True)
         if Path(filename).exists() and not force:
             try:
@@ -47,12 +47,13 @@ class VaccineData(CleaningBase):
             except KeyError:
                 # Error when the local dataset does not have necessary columns
                 # Raised when new CovsirPhy version requires additional columns
-                #self._raw = self._retrieve(filename=filename, verbose=verbose)
-                self._raw = df
+                self._raw = self._retrieve(filename=filename, verbose=verbose)
+                #self._raw = df
         else:
-            #self._raw = self._retrieve(filename=filename, verbose=verbose)
-            self._raw = df
-        self._cleaned_df = self._cleaning()
+            self._raw = self._retrieve(filename=filename, verbose=verbose)
+            #self._raw = df
+        #self._cleaned_df = self._cleaning()
+        self._cleaned_df = df        
         self._citation = "Hasell, J., Mathieu, E., Beltekian, D. et al." \
             " A cross-country database of COVID-19 testing. Sci Data 7, 345 (2020)." \
             " https://doi.org/10.1038/s41597-020-00688-8"
