@@ -295,6 +295,7 @@ class DataLoader(Term):
         Args:
             basename (str): basename of the file to save the data
             verbose (int): level of verbosity
+            df (Data Frame): --mod -- from df
 
         Returns:
             covsirphy.VaccineData: dataset regarding vaccines
