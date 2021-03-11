@@ -286,7 +286,7 @@ class DataLoader(Term):
         pcr_data.replace(japan_data)
         return pcr_data
 
-    def vaccine(self, basename="ourworldindata_vaccine.csv", verbose=1, dataframe):
+    def vaccine(self, basename="ourworldindata_vaccine.csv", verbose=1, df=dataframe):
         """
         Load the dataset regarding vaccination.
         https://github.com/owid/covid-19-data/tree/master/public/data
