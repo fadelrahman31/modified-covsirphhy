@@ -7,6 +7,8 @@ Latest stable Package version release : 2.17.0
 
 > **List of Updated Features**
 
-[12/3/2021]
+[7/2/2021]
 - Additional of MAPE metric score evaluation for hyperparameters estimation
+
+[12/3/2021]
 - Load Vaccine Data from Dataframe functionality
