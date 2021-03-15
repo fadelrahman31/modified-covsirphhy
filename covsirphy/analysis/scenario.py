@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import linear_model
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.metrics import r2_score
+from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from covsirphy.util.error import deprecate, ScenarioNotFoundError, UnExecutedError
@@ -1299,8 +1300,8 @@ class Scenario(Term):
                 - regressor (object): regressor class
                 - alpha (float): alpha value used in Elastic Net regression
                 - l1_ratio (float): l1_ratio value used in Elastic Net regression
-                - score_train (float): determination coefficient of train dataset
-                - score_test (float): determination coefficient of test dataset
+                - score_train (string): R2 + MAPE Score of train dataset
+                - score_test (string): R2 + MAPE Score of test dataset
                 - X_train (numpy.array): X_train
                 - y_train (numpy.array): y_train
                 - X_test (numpy.array): X_test
@@ -1356,9 +1357,17 @@ class Scenario(Term):
         # Register the pipeline and X-target for prediction
         self._lm_dict[name] = (pipeline, X_target)
         # Get train score
-        score_train = r2_score(pipeline.predict(X_train), y_train)
+        ###score_train = r2_score(pipeline.predict(X_train), y_train)
+        r2_train = r2_score(pipeline.predict(X_train), y_train)
+        mape_train = mean_absolute_percentage_error(pipeline.predict(X_train), y_train)
+        score_train = "R2 Score: " + r2_train + ", MAPE Score: " + mape_train
+
         # Get test score
-        score_test = r2_score(pipeline.predict(X_test), y_test)
+        ###score_test = r2_score(pipeline.predict(X_test), y_test)
+        r2_test = r2_score(pipeline.predict(X_test), y_test)
+        mape_test = mean_absolute_percentage_error(pipeline.predict(X_test), y_test)
+        score_test = "R2 Score: " + r2_test + ", MAPE Score: " + mape_test
+
         # Return information regarding regression model
         reg_output = pipeline.named_steps.regressor
         # Intercept
