@@ -45,7 +45,7 @@ descartes = "^1.1.0"
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.5.5"
 flake8 = "^3.8.4"
-kaggle = "^1.5.10"
+kaggle = "^1.5.12"
 Sphinx = "^3.4.3"
 sphinx-rtd-theme = "^0.5.0"
 sphinxcontrib-seqdiag = "^2.0.0"
