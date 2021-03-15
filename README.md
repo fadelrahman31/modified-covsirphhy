@@ -12,3 +12,6 @@ Latest stable Package version release : 2.17.0
 
 [12/3/2021]
 - Load Vaccine Data from Dataframe functionality
+
+[15/3/2021]
+- Additional MAPE score evaluation to Scenario.fit() functionality
