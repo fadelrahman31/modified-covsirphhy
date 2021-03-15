@@ -1358,14 +1358,21 @@ class Scenario(Term):
         self._lm_dict[name] = (pipeline, X_target)
         # Get train score
         ###score_train = r2_score(pipeline.predict(X_train), y_train)
-        r2_train = r2_score(pipeline.predict(X_train), y_train)
-        mape_train = mean_absolute_percentage_error(pipeline.predict(X_train), y_train)
+        r2_train_raw = r2_score(pipeline.predict(X_train), y_train)
+        r2_train = f"{r2_train_raw:.5f}"  
+        
+        mape_train_raw = mean_absolute_percentage_error(pipeline.predict(X_train), y_train)
+        mape_train = f"{mape_train_raw:.5f}" 
+        
         score_train = "R2 Score: " + r2_train + ", MAPE Score: " + mape_train
 
         # Get test score
         ###score_test = r2_score(pipeline.predict(X_test), y_test)
-        r2_test = r2_score(pipeline.predict(X_test), y_test)
-        mape_test = mean_absolute_percentage_error(pipeline.predict(X_test), y_test)
+        r2_test_raw = r2_score(pipeline.predict(X_test), y_test)
+        r2_test = f"{r2_test_raw:.5f}" 
+
+        mape_test_raw = mean_absolute_percentage_error(pipeline.predict(X_test), y_test)
+        mape_test = f"{mape_test_raw:.5f}" 
         score_test = "R2 Score: " + r2_test + ", MAPE Score: " + mape_test
 
         # Return information regarding regression model
