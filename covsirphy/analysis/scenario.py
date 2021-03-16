@@ -1461,7 +1461,9 @@ class Scenario(Term):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=seed)
         # Create pipeline for learning
         cv = linear_model.MultiTaskElasticNetCV(
-            alphas=[0.1, 0.5, 1],
+            alphas=[0, 0.001, 0.01, 0.1, 1, 10, 100, 1000],
+            #l1_ratio=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            #alphas=[0.1, 0.5, 1],
             l1_ratio=[0.7, 0.8, 0.9, 0.91, 0.92, 0.93, 0.94, 0.95],
             cv=5, n_jobs=-1)
         steps = [
