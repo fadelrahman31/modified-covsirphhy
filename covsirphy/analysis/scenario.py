@@ -1751,6 +1751,7 @@ class Scenario(Term):
         train_parameter_sigma = dict()
 
         # Theta
+        print("==== TUNING TRAIN THETA ===")
         study = optuna.create_study(direction="maximize")
         study.optimize(_theta_objective_tuning, n_trials=1000)
 
@@ -1759,6 +1760,7 @@ class Scenario(Term):
             train_parameter_theta[key] = value
 
         # Kappa
+        print("==== TUNING TRAIN KAPPA ===")
         study2 = optuna.create_study(direction="maximize")
         study2.optimize(_kappa_objective_tuning, n_trials=1000)
 
@@ -1767,6 +1769,7 @@ class Scenario(Term):
             train_parameter_kappa[key] = value
 
         # Rho
+        print("==== TUNING TRAIN RHO ===")
         study3 = optuna.create_study(direction="maximize")
         study3.optimize(_rho_objective_tuning, n_trials=1000)
 
@@ -1775,6 +1778,7 @@ class Scenario(Term):
             train_parameter_rho[key] = value
 
         # Sigma
+        print("==== TUNING TRAIN SIGMA ===")
         study4 = optuna.create_study(direction="maximize")
         study4.optimize(_sigma_objective_tuning, n_trials=1000)
 
@@ -1888,15 +1892,19 @@ class Scenario(Term):
 
             return preds       
 
+        print("==== PREDICTING THETA ===")
         theta_predicted = _theta_objective_predict(train_parameter_theta, X_target)
         theta_predicted = theta_predicted.tolist()
 
+        print("==== PREDICTING KAPPA ===")
         kappa_predicted = _kappa_objective_predict(train_parameter_kappa, X_target)
         kappa_predicted = kappa_predicted.tolist()
 
+        print("==== PREDICTING RHO ===")
         rho_predicted = _rho_objective_predict(train_parameter_rho, X_target)
         rho_predicted = rho_predicted.tolist()
 
+        print("==== PREDICTING SIGMA ===")
         sigma_predicted = _sigma_objective_predict(train_parameter_sigma, X_target)
         sigma_predicted = sigma_predicted.tolist()
 
