@@ -15,3 +15,6 @@ Latest stable Package version release : 2.17.0
 
 [15/3/2021]
 - Additional MAPE score evaluation to Scenario.fit() functionality
+
+[21/3/2021]
+- Additional Scenario.fit() and Scenario.predict() using Light GBM regressor functionality
