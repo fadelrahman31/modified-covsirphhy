@@ -1671,7 +1671,7 @@ class Scenario(Term):
             # Model for Theta
             model = lgb.train(params, trainTheta, num_boost_round=20,valid_sets=valTheta, early_stopping_rounds=10)
             preds = model.predict(X_test)
-            accuracy =  sklearn.metrics.mean_absolute_error(yTestThetaDF, preds)
+            accuracy =  mean_absolute_error(yTestThetaDF, preds)
             return accuracy
         
         def _kappa_objective_tuning(trial):
@@ -1694,7 +1694,7 @@ class Scenario(Term):
             # Model for Theta
             model = lgb.train(params, trainKappa, num_boost_round=20,valid_sets=valKappa, early_stopping_rounds=10)
             preds = model.predict(X_test)
-            accuracy =  sklearn.metrics.mean_absolute_error(yTestKappaDF, preds)
+            accuracy =  mean_absolute_error(yTestKappaDF, preds)
             return accuracy
         
         def _rho_objective_tuning(trial):
@@ -1717,7 +1717,7 @@ class Scenario(Term):
             # Model for Theta
             model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
             preds = model.predict(X_test)
-            accuracy =  sklearn.metrics.mean_absolute_error(yTestRhoDF, preds)
+            accuracy =  mean_absolute_error(yTestRhoDF, preds)
             return accuracy
 
         def _sigma_objective_tuning(trial):
@@ -1740,7 +1740,7 @@ class Scenario(Term):
             # Model for Theta
             model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
             preds = model.predict(X_test)
-            accuracy =  sklearn.metrics.mean_absolute_error(yTestSigmaDF, preds)
+            accuracy =  mean_absolute_error(yTestSigmaDF, preds)
             return accuracy
         
         # Tuning Process by Calling All of the Tuning Functions
