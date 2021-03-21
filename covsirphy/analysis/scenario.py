@@ -8,10 +8,13 @@ import warnings
 import sys
 import numpy as np
 import pandas as pd
+import optuna
+import lightgbm as lgb
 from sklearn.model_selection import train_test_split
 from sklearn import linear_model
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.metrics import r2_score
+from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
@@ -1572,4 +1575,343 @@ class Scenario(Term):
         """
         self.fit(oxcgrt_data=oxcgrt_data, name=name, **kwargs)
         self.predict(name=name)
+        return self
+
+    def fit_predict_sirf_lgbm(self, oxcgrt_data=None, name="Main", test_size=0.2, seed=0, delay=None):
+        """
+        Scenario.fit() and Scenario.predict() functionality, but this function uses Light GBM as regresseor instead of Elastic Net CV.
+
+        Args:
+            oxcgrt_data (covsirphy.OxCGRTData): OxCGRT dataset
+            name (str): scenario name
+            test_size (float): proportion of the test dataset of Elastic Net regression
+            seed (int): random seed when spliting the dataset to train/test data
+            delay (int): number of days of delay between policy measure and effect
+            on number of confirmed cases.
+
+        Raises:
+            covsirphy.UnExecutedError: Scenario.estimate() or Scenario.add() were not performed
+
+        Returns:
+
+        Note:
+
+        """
+        warnings.simplefilter("ignore", category=ConvergenceWarning)
+        # Register OxCGRT data
+        if oxcgrt_data is not None:
+            warnings.warn(
+                "Please use Scenario.register(extras=[oxcgrt_data]) rather than Scenario.fit(oxcgrt_data).",
+                DeprecationWarning, stacklevel=1)
+            self.register(extras=[oxcgrt_data])
+        # ODE model
+        model = self._tracker(name).last_model
+        if model is None:
+            raise UnExecutedError(
+                "Scenario.estimate() or Scenario.add()",
+                message=f", specifying @model (covsirphy.SIRF etc.) and @name='{name}'.")
+        # Set delay effect
+        if delay is None:
+            delay, delay_df = self.estimate_delay(oxcgrt_data)
+            removed_cols = delay_df.columns.tolist()
+        else:
+            delay = self._ensure_natural_int(delay, name="delay")
+            removed_cols = []
+        # Create training/test dataset
+        try:
+            X, y, X_target = self._fit_create_data(
+                model=model, name=name, delay=delay, removed_cols=removed_cols)
+        except NotRegisteredExtraError:
+            raise NotRegisteredExtraError(
+                "Scenario.register(jhu_data, population_data, extras=[...])",
+                message="with extra datasets") from None
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=seed)
+        
+        # Prepare Dataset for Training Light GBM
+        yTrainTheta = y_train['theta'].to_list()
+        yTrainThetaDF = pd.DataFrame(yTrainTheta)
+
+        yTrainKappa = y_train['kappa'].to_list()
+        yTrainKappaDF = pd.DataFrame(yTrainKappa)
+
+        yTrainRho = y_train['rho'].to_list()
+        yTrainRhoDF = pd.DataFrame(yTrainRho)
+
+        yTrainSigma = y_train['sigma'].to_list()
+        yTrainSigmaDF = pd.DataFrame(yTrainSigma)
+
+        yTestTheta = y_test['theta'].to_list()
+        yTestThetaDF = pd.DataFrame(yTestTheta)
+
+        yTestKappa = y_test['kappa'].to_list()
+        yTestKappaDF = pd.DataFrame(yTestKappa)
+
+        yTestRho = y_test['rho'].to_list()
+        yTestRhoDF = pd.DataFrame(yTestRho)
+
+        # Training Function
+
+        def _theta_objective_tuning(trial):
+            # Theta
+            trainTheta = lgb.Dataset(X_train, yTrainThetaDF)
+            valTheta = lgb.Dataset(X_test, yTestThetaDF, reference=trainTheta)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
+                "bagging_freq": 5,
+                "verbose": 0
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainTheta, num_boost_round=20,valid_sets=valTheta, early_stopping_rounds=10)
+            preds = model.predict(xTest)
+            accuracy =  sklearn.metrics.mean_absolute_error(yTestThetaDF, preds)
+            return accuracy
+        
+        def _kappa_objective_tuning(trial):
+            # Kappa
+            trainKappa = lgb.Dataset(X_train, yTrainKappaDF)
+            valKappa = lgb.Dataset(X_test, yTestKappaDF, reference=trainKappa)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
+                "bagging_freq": 5,
+                "verbose": 0
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainKappa, num_boost_round=20,valid_sets=valKappa, early_stopping_rounds=10)
+            preds = model.predict(xTest)
+            accuracy =  sklearn.metrics.mean_absolute_error(yTestKappaDF, preds)
+            return accuracy
+        
+        def _rho_objective_tuning(trial):
+            # Rho
+            trainRho = lgb.Dataset(X_train, yTrainRhoDF)
+            valRho = lgb.Dataset(X_test, yTestRhoDF, reference=trainRho)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
+                "bagging_freq": 5,
+                "verbose": 0
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
+            preds = model.predict(xTest)
+            accuracy =  sklearn.metrics.mean_absolute_error(yTestRhoDF, preds)
+            return accuracy
+
+        def _sigma_objective_tuning(trial):
+            # Sigma
+            trainSigma = lgb.Dataset(X_train, yTrainSigmaDF)
+            valSigma = lgb.Dataset(X_test, yTestSigmaDF, reference=trainSigma)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
+                "bagging_freq": 5,
+                "verbose": 0
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
+            preds = model.predict(xTest)
+            accuracy =  sklearn.metrics.mean_absolute_error(yTestSigmaDF, preds)
+            return accuracy
+        
+        # Tuning Process by Calling All of the Tuning Functions
+
+        train_parameter_theta = dict()
+        train_parameter_kappa = dict()
+        train_parameter_rho = dict()
+        train_parameter_sigma = dict()
+
+        # Theta
+        study = optuna.create_study(direction="maximize")
+        study.optimize(_theta_objective_tuning, n_trials=1000)
+
+        trial = study.best_trial
+        for key, value in trial.params.items():
+            train_parameter_theta[key] = value
+
+        # Kappa
+        study2 = optuna.create_study(direction="maximize")
+        study2.optimize(_kappa_objective_tuning, n_trials=1000)
+
+        trial2 = study2.best_trial
+        for key, value in trial2.params.items():
+            train_parameter_kappa[key] = value
+
+        # Rho
+        study3 = optuna.create_study(direction="maximize")
+        study3.optimize(_rho_objective_tuning, n_trials=1000)
+
+        trial3 = study3.best_trial
+        for key, value in trial3.params.items():
+            train_parameter_rho[key] = value
+
+        # Sigma
+        study4 = optuna.create_study(direction="maximize")
+        study4.optimize(_sigma_objective_tuning, n_trials=1000)
+
+        trial4 = study4.best_trial
+        for key, value in trial4.params.items():
+            train_parameter_sigma[key] = value
+
+        # Predict Function
+
+        def _theta_objective_predict(paramsDict, dataPred):
+
+            parameters = paramsDict.copy()
+
+            # Theta
+            trainTheta = lgb.Dataset(X_train, yTrainThetaDF)
+            valTheta = lgb.Dataset(X_test, yTestThetaDF, reference=trainTheta)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : int(parameters["num_leaves"]),
+                "learning_rate" : float(parameters["learning_rate"]),
+                "bagging_fraction": float(parameters["bagging_fraction"]),
+                "feature_fraction": float(parameters["feature_fraction"]),
+                "bagging_freq": 5,
+                "verbose": -1
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainTheta, num_boost_round=20,valid_sets=valTheta, early_stopping_rounds=10)
+            preds = model.predict(dataPred)
+
+            return preds
+        
+        def _kappa_objective_predict(paramsDict, dataPred):
+
+            parameters = paramsDict.copy()
+            
+            # Kappa
+            trainKappa = lgb.Dataset(X_train, yTrainKappaDF)
+            valKappa = lgb.Dataset(X_test, yTestKappaDF, reference=trainKappa)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : int(parameters["num_leaves"]),
+                "learning_rate" : float(parameters["learning_rate"]),
+                "bagging_fraction": float(parameters["bagging_fraction"]),
+                "feature_fraction": float(parameters["feature_fraction"]),
+                "bagging_freq": 5,
+                "verbose": -1
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainKappa, num_boost_round=20,valid_sets=valKappa, early_stopping_rounds=10)
+            preds = model.predict(dataPred)
+
+            return preds
+
+        def _rho_objective_predict(paramsDict, dataPred):
+
+            parameters = paramsDict.copy()
+
+            # Rho
+            trainRho = lgb.Dataset(X_train, yTrainRhoDF)
+            valRho = lgb.Dataset(X_test, yTestRhoDF, reference=trainRho)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : int(parameters["num_leaves"]),
+                "learning_rate" : float(parameters["learning_rate"]),
+                "bagging_fraction": float(parameters["bagging_fraction"]),
+                "feature_fraction": float(parameters["feature_fraction"]),
+                "bagging_freq": 5,
+                "verbose": -1
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
+            preds = model.predict(dataPred)
+
+            return preds
+
+        def _sigma_objective_predict(paramsDict, dataPred):
+
+            parameters = paramsDict.copy()
+
+            # Sigma
+            trainSigma = lgb.Dataset(X_train, yTrainSigmaDF)
+            valSigma = lgb.Dataset(X_test, yTestSigmaDF, reference=trainSigma)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : int(parameters["num_leaves"]),
+                "learning_rate" : float(parameters["learning_rate"]),
+                "bagging_fraction": float(parameters["bagging_fraction"]),
+                "feature_fraction": float(parameters["feature_fraction"]),
+                "bagging_freq": 5,
+                "verbose": -1
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
+            preds = model.predict(dataPred)
+
+            return preds       
+
+        theta_predicted = _theta_objective_predict(train_parameter_theta, X_target)
+        theta_predicted = theta_predicted.tolist()
+
+        kappa_predicted = _kappa_objective_predict(train_parameter_kappa, X_target)
+        kappa_predicted = kappa_predicted.tolist()
+
+        rho_predicted = _rho_objective_predict(train_parameter_rho, X_target)
+        rho_predicted = rho_predicted.tolist()
+
+        sigma_predicted = _sigma_objective_predict(train_parameter_sigma, X_target)
+        sigma_predicted = sigma_predicted.tolist()
+
+        predictedData = pd.DataFrame(list(zip(theta_predicted, kappa_predicted, rho_predicted, sigma_predicted)))
+        predictedData = predictedData.to_numpy()
+        
+        # -> end_date/parameter values
+        df = pd.DataFrame(predictedData, index=X_target.index, columns=model.PARAMETERS)
+        df = df.applymap(lambda x: np.around(x, 4 - int(floor(log10(abs(x)))) - 1))
+        df.index = [date.strftime(self.DATE_FORMAT) for date in df.index]
+        df.index.name = "end_date"
+        phase_df = df.drop_duplicates(keep="last").reset_index()
+        # Select the last values
+        phase_df = phase_df.iloc[[-1], :]
+        # Set new future phases
+        for phase_dict in phase_df.to_dict(orient="records"):
+            self.add(name=name, **phase_dict)
         return self
