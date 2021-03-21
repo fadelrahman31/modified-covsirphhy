@@ -1649,6 +1649,9 @@ class Scenario(Term):
         yTestRho = y_test['rho'].to_list()
         yTestRhoDF = pd.DataFrame(yTestRho)
 
+        yTestSigma = y_test['sigma'].to_list()
+        yTestSigmaDF = pd.DataFrame(yTestSigma)
+
         # Training Function
 
         def _theta_objective_tuning(trial):
