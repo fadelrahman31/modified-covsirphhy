@@ -5,8 +5,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from dask import dataframe as dd
-from covsirphy.util.plotting import line_plot
 from covsirphy.util.error import PCRIncorrectPreconditionError, SubsetNotFoundError
+from covsirphy.visualization.line_plot import line_plot
 from covsirphy.cleaning.cbase import CleaningBase
 from covsirphy.cleaning.country_data import CountryData
 
@@ -60,7 +60,7 @@ class PCRData(CleaningBase):
                 Index
                     reset index
                 Columns
-                    - Date (pd.TimeStamp): Observation date
+                    - Date (pd.Timestamp): Observation date
                     - Country (pandas.Category): country/region name
                     - Province (pandas.Category): province/prefecture/state name
                     - Tests (int): the number of total tests performed
@@ -81,7 +81,7 @@ class PCRData(CleaningBase):
                 Index
                     reset index
                 Columns
-                    - Date (pd.TimeStamp): Observation date
+                    - Date (pd.Timestamp): Observation date
                     - ISO3 (str): ISO3 code
                     - Country (pandas.Category): country/region name
                     - Province (pandas.Category): province/prefecture/state name
@@ -294,7 +294,7 @@ class PCRData(CleaningBase):
             # Extrapolated value on the date
             series = df.loc[:date, variable]
             series.iloc[-1] = None
-            series.interpolate(method="spline", order=1, inplace=True)
+            series.interpolate(method="linear", inplace=True, limit_direction="both")
             series.fillna(method="ffill", inplace=True)
             # Reduce values to the previous date
             df.loc[:date, variable] = series * raw_last / series.iloc[-1]
@@ -418,7 +418,7 @@ class PCRData(CleaningBase):
                     Index
                         reset index
                     Columns
-                        - Date (pd.TimeStamp): Observation date
+                        - Date (pd.Timestamp): Observation date
                         - Tests (int): the number of total tests performed
                         - Confirmed (int): the number of confirmed cases
                         - Tests_diff (int): daily tests performed
@@ -606,14 +606,18 @@ class PCRData(CleaningBase):
                 Index
                     reset index
                 Columns
-                    - Date (pd.TimeStamp): Observation date
+                    - Date (pd.Timestamp): Observation date
                     - Tests (int): the number of total tests performed
+                    - Tests_diff (int): daily number of tests on date
                     - Confirmed (int): the number of confirmed cases
         """
         country_alias = self.ensure_country_name(country)
         df = self._subset_select(country=country_alias, province=province or self.UNKNOWN)
-        df = df.drop(
-            [self.COUNTRY, self.ISO3, self.PROVINCE], axis=1)
+        # Calculate Tests_diff
+        df[self.T_DIFF] = df[self.TESTS].diff().fillna(0)
+        df.loc[df[self.T_DIFF] < 0, self.T_DIFF] = 0
+        df[self.T_DIFF] = df[self.T_DIFF].astype(np.int64)
+        df = df.loc[:, [self.DATE, self.TESTS, self.T_DIFF, self.C]]
         # Subset with Start/end date
         if start_date is None and end_date is None:
             return df.reset_index(drop=True)

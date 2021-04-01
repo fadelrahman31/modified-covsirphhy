@@ -9,21 +9,23 @@ except ImportError:
     better_exceptions_installed = False
 # version
 from covsirphy.__version__ import __version__
+from covsirphy.__citation__ import __citation__
 # util
-from covsirphy.util.plotting import line_plot, line_plot_multiple
-from covsirphy.util.optimize import Optimizer
 from covsirphy.util.stopwatch import StopWatch
 from covsirphy.util.error import deprecate
 from covsirphy.util.error import SubsetNotFoundError, ScenarioNotFoundError, UnExecutedError
 from covsirphy.util.error import PCRIncorrectPreconditionError, NotInteractiveError, UnExpectedValueError
 from covsirphy.util.error import NotRegisteredMainError, NotRegisteredExtraError
-from covsirphy.util.file import save_dataframe
+from covsirphy.util.filer import save_dataframe
 from covsirphy.util.argument import find_args
+from covsirphy.util.filer import Filer
 from covsirphy.util.term import Term, Word
 # visualization
 from covsirphy.visualization.vbase import VisualizeBase
 from covsirphy.visualization.colored_map import ColoredMap
 from covsirphy.visualization.japan_map import jpn_map
+from covsirphy.visualization.line_plot import LinePlot, line_plot
+from covsirphy.visualization.bar_plot import BarPlot, bar_plot
 # cleaning
 from covsirphy.cleaning.cbase import CleaningBase
 from covsirphy.cleaning.jhu_data import JHUData
@@ -38,6 +40,9 @@ from covsirphy.cleaning.covid19datahub import COVID19DataHub
 from covsirphy.cleaning.linelist import LinelistData
 from covsirphy.cleaning.vaccine_data import VaccineData
 from covsirphy.cleaning.dataloader import DataLoader
+# trend
+from covsirphy.trend.trend_detector import TrendDetector, Trend, ChangeFinder
+from covsirphy.trend.trend_plot import TrendPlot, trend_plot, line_plot_multiple
 # ode
 from covsirphy.ode.mbase import ModelBase
 from covsirphy.ode.sir import SIR
@@ -46,11 +51,9 @@ from covsirphy.ode.sirf import SIRF
 from covsirphy.ode.sirfv import SIRFV
 from covsirphy.ode.sewirf import SEWIRF
 # simulation
-from covsirphy.simulation.estimator import Estimator
+from covsirphy.simulation.estimator import Estimator, Optimizer
 from covsirphy.simulation.simulator import ODESimulator
 # phase
-from covsirphy.phase.trend import Trend
-from covsirphy.phase.sr_change import ChangeFinder
 from covsirphy.phase.phase_unit import PhaseUnit
 from covsirphy.phase.phase_series import PhaseSeries
 from covsirphy.phase.phase_estimator import MPEstimator
@@ -67,30 +70,50 @@ from covsirphy.worldwide.policy import PolicyMeasures
 def get_version():
     """
     Return the version number, like CovsirPhy v0.0.0
+
+    Returns:
+        str
     """
     return f"CovsirPhy v{__version__}"
 
 
+def get_citation():
+    """
+    Return the citation of CovsirPhy
+
+    Returns:
+        str
+    """
+    return __citation__
+
+
 __all__ = [
-    "ExampleData", "Scenario", "ModelValidator", "ParamTracker",
-    "ODESimulator", "ChangeFinder", "DataHandler",
-    "PhaseSeries", "PhaseUnit", "MPEstimator",
-    "Term", "CleaningBase", "DataLoader", "COVID19DataHub",
-    "JHUData", "CountryData", "PopulationData", "OxCGRTData", "VaccineData",
-    "PopulationPyramidData",
-    "LinelistData", "PCRData", "JapanData", "JHUDataComplementHandler",
-    "ModelBase", "SIR", "SIRD", "SIRF", "SIRFV", "SEWIRF",
-    "Estimator", "Trend", "Optimizer",
-    "line_plot", "StopWatch", "deprecate", "find_args",
-    "line_plot_multiple",
-    "save_dataframe",
-    "PolicyMeasures",
+    # util
+    "StopWatch", "deprecate", "find_args", "Term", "Filer",
     "SubsetNotFoundError", "ScenarioNotFoundError", "UnExecutedError",
     "PCRIncorrectPreconditionError", "NotInteractiveError",
     "UnExpectedValueError", "NotRegisteredMainError", "NotRegisteredExtraError",
-    "VisualizeBase", "ColoredMap",
+    # visualization
+    "VisualizeBase", "ColoredMap", "LinePlot", "line_plot", "BarPlot", "bar_plot",
+    # cleaning
+    "CleaningBase", "DataLoader", "COVID19DataHub",
+    "JHUData", "CountryData", "PopulationData", "OxCGRTData", "VaccineData",
+    "PopulationPyramidData", "LinelistData", "PCRData", "JapanData", "JHUDataComplementHandler",
+    # trend
+    "TrendDetector", "TrendPlot", "trend_plot",
+    # ode
+    "ModelBase", "SIR", "SIRD", "SIRF", "SEWIRF",
+    # simulation
+    "ODESimulator", "Estimator",
+    # phase
+    "PhaseSeries", "PhaseUnit", "MPEstimator",
+    # analysis
+    "ExampleData", "Scenario", "ModelValidator", "ParamTracker", "DataHandler",
+    # worldwide
+    "PolicyMeasures",
     # Deprecated
-    "Population", "Word", "jpn_map",
+    "Population", "Word", "jpn_map", "SIRFV", "line_plot_multiple", "ChangeFinder", "Trend",
+    "Optimizer", "save_dataframe",
 ]
 
 # Show exceptions in better format if used from command line

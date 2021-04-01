@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.17.0
+                2.18.0-alpha
               </div>
             
           
@@ -122,7 +122,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage_phases.html">Usage: phases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage_theoretical.html">Usage: SIR-derived models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../covsirphy.html">covsirphy package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="TERM.html">Term definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TERM.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../SECURITY.html">Security policy of CovsirPhy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Guideline of contribution</a></li>
@@ -219,17 +219,12 @@
 </style>
 <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>The latest stable version of CovsirPhy is available at <a class="reference external" href="https://pypi.org/project/covsirphy/">PyPI (The Python Package Index): covsirphy</a> and supports Python 3.6.9 or newer versions. It is recommended to use virtual environment.</p>
+<p>The latest stable version of CovsirPhy is available at <a class="reference external" href="https://pypi.org/project/covsirphy/">PyPI (The Python Package Index): covsirphy</a> and supports Python 3.7 or newer versions. It is recommended to use virtual environment.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --upgrade covsirphy
 </pre></div>
 </div>
-<p>The latest development version can be install from <a class="reference external" href="https://github.com/lisphilar/covid19-sir">GitHub repository: CovsirPhy</a>. Please refer to <a class="reference external" href="https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html">Guideline of contribution</a>.</p>
+<p>You can find the latest development in <a class="reference external" href="https://github.com/lisphilar/covid19-sir">GitHub repository: CovsirPhy</a> and install it with <code class="docutils literal notranslate"><span class="pre">pip</span></code> command. Please refer to <a class="reference external" href="https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html">Guideline of contribution</a>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --upgrade <span class="s2">&quot;git+https://github.com/lisphilar/covid19-sir.git#egg=covsirphy&quot;</span>
-</pre></div>
-</div>
-<p>Note:<br />When using <strong>development versions</strong> of CovsirPhy in Kaggle Notebook, please run the following codes to remove third-party <code class="docutils literal notranslate"><span class="pre">typing</span></code> package.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>!pip uninstall typing -y
-!pip install --upgrade <span class="s2">&quot;git+https://github.com/lisphilar/covid19-sir.git#egg=covsirphy&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -313,7 +308,7 @@
 </div>
 <div class="section" id="how-to-request-new-data-loader">
 <h2>2. How to request new data loader<a class="headerlink" href="#how-to-request-new-data-loader" title="Permalink to this headline">¶</a></h2>
-<p>If you want to use a new dataset for your analysis, please kindly inform us via <a class="reference external" href="https://github.com/lisphilar/covid19-sir/issues/new/?template=request-new-method-of-dataloader-class.md">GitHub Issues: Request new method of DataLoader class</a>. Please read <a class="reference external" href="https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html">Guideline of contribution</a> in advance.</p>
+<p>If you want to use a new dataset for your analysis, please kindly inform us using <a class="reference external" href="https://github.com/lisphilar/covid19-sir/issues/new/?template=request-new-method-of-dataloader-class.md">GitHub Issues: Request new method of DataLoader class</a>. Please read <a class="reference external" href="https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html">Guideline of contribution</a> in advance.</p>
 </div>
 <div class="section" id="use-a-local-csv-file-which-has-the-number-of-cases">
 <h2>3. Use a local CSV file which has the number of cases<a class="headerlink" href="#use-a-local-csv-file-which-has-the-number-of-cases" title="Permalink to this headline">¶</a></h2>
@@ -328,7 +323,7 @@
 <li><p>“fatal”: the number of fatal cases</p></li>
 <li><p>“province”: (optional) province names</p></li>
 </ul>
-<p>Country level data will be set as total values of provinces with <code class="docutils literal notranslate"><span class="pre">CountryData.register_total()</span></code> method optionally (&gt;=2.15.0-gamma).</p>
+<p>Country level data will be set as total values of provinces with <code class="docutils literal notranslate"><span class="pre">CountryData.register_total()</span></code> method optionally.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create CountryData instance specifying filename and country name</span>
 <span class="n">country_data</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">CountryData</span><span class="p">(</span><span class="s2">&quot;oslo.csv&quot;</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="s2">&quot;Norway&quot;</span><span class="p">)</span>
 <span class="c1"># Specify column names</span>

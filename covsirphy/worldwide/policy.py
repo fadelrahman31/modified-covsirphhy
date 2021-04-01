@@ -5,11 +5,11 @@ from itertools import groupby
 from operator import itemgetter
 import pandas as pd
 from covsirphy.util.error import deprecate, UnExecutedError
-from covsirphy.util.plotting import line_plot
+from covsirphy.util.term import Term
 from covsirphy.cleaning.jhu_data import JHUData
 from covsirphy.cleaning.population import PopulationData
 from covsirphy.cleaning.oxcgrt import OxCGRTData
-from covsirphy.util.term import Term
+from covsirphy.visualization.line_plot import line_plot
 from covsirphy.ode.mbase import ModelBase
 from covsirphy.phase.phase_estimator import MPEstimator
 from covsirphy.analysis.scenario import Scenario
@@ -116,8 +116,7 @@ class PolicyMeasures(Term):
         min_len = self._ensure_natural_int(min_len, name="min_len")
         for country in self._countries:
             try:
-                self.scenario_dict[country].trend(
-                    set_phases=True, show_figure=False)
+                self.scenario_dict[country].trend(set_phases=True, show_figure=False)
             except ValueError:
                 pass
         countries = [
@@ -228,7 +227,7 @@ class PolicyMeasures(Term):
         Returns:
             pandas.DataFrame:
                 Index
-                    Date (pd.TimeStamp) date
+                    Date (pd.Timestamp) date
                 Columns
                     (str) country names
                 Values:
@@ -277,7 +276,7 @@ class PolicyMeasures(Term):
                     reset index
                 Columns
                     - Country (str): country name
-                    - Date (pd.TimeStamp): date
+                    - Date (pd.Timestamp): date
                     - (float): model parameters
                     - (float): model day parameters
                     - Rt (float): reproduction number

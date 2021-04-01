@@ -28,8 +28,8 @@ Functionalities
 -  `Phase setting with S-R Trend
    analysis <https://lisphilar.github.io/covid19-sir/usage_phases.html>`__
 -  `Numerical simulation of ODE
-   models <https://lisphilar.github.io/covid19-sir/usage_theoretical.html>`__
--  SIR, SIR-D and SIR-F model
+   models <https://lisphilar.github.io/covid19-sir/usage_theoretical.html>`__:
+   SIR, SIR-D and SIR-F model
 -  `Phase-dependent parameter estimation of ODE
    models <https://lisphilar.github.io/covid19-sir/usage_quickest.html>`__
 -  `Scenario
@@ -50,7 +50,7 @@ Inspiration
 If you have ideas or need new functionalities, please join this project.
 Any suggestions with `Github
 Issues <https://github.com/lisphilar/covid19-sir/issues/new/choose>`__
-are always welcomed. Please read `Guideline of
+are always welcomed. Questions are also great. Please read `Guideline of
 contribution <https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html>`__
 in advance.
 
@@ -105,6 +105,19 @@ Further information:
 -  `Kaggle: COVID-19 data with SIR
    model <https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model>`__
 
+Release notes
+-------------
+
+Release notes are
+`here <https://github.com/lisphilar/covid19-sir/releases>`__. Titles &
+links of issues are listed with acknowledgement.
+
+We can see the release plan for the next stable version in `milestone
+page of the GitHub
+repository <https://github.com/lisphilar/covid19-sir/milestones>`__. If
+you find a highly urgent matter, please let us know via `issue
+page <https://github.com/lisphilar/covid19-sir/issues>`__.
+
 Support
 -------
 
@@ -121,10 +134,10 @@ the full list
 This project started in Kaggle platform. Lisphilar published `Kaggle
 Notebook: COVID-19 data with SIR
 model <https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model>`__
-on 12Feb2020, discussing with Kaggle community. On 07May2020,
-"covid19-sir" repository was created. On 10May2020, ``covsirphy``
-version 1.0.0 was published in GitHub. Version 2.3.0 was released in
-PyPI on 28Jun2020.
+on 12Feb2020 and developed it, discussing with Kaggle community. On
+07May2020, "covid19-sir" repository was created. On 10May2020,
+``covsirphy`` version 1.0.0 was published in GitHub. First release in
+PyPI (version 2.3.0) was on 28Jun2020.
 
 License: Apache License 2.0
 ---------------------------
@@ -137,18 +150,26 @@ Citation
 --------
 
 We have no original papers the author and contributors wrote, but please
-cite this package as follows.
+cite this library as follows with version number
+(``import covsirphy as cs; cs.__version__``).
 
-CovsirPhy Development Team (2020), CovsirPhy, Python package for
-COVID-19 analysis with SIR-derived ODE models,
-https://github.com/lisphilar/covid19-sir
+CovsirPhy Development Team (2020-2021), CovsirPhy version [version
+number]: Python library for COVID-19 analysis with phase-dependent
+SIR-derived ODE models, https://github.com/lisphilar/covid19-sir
 
 If you want to use SIR-F model, S-R trend analysis, phase-dependent
 approach to SIR-derived models, and other scientific method performed
 with CovsirPhy, please cite the next Kaggle notebook.
 
-Lisphilar (2020), Kaggle notebook, COVID-19 data with SIR model,
-https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model
+Hirokazu Takaya (2020-2021), Kaggle Notebook, COVID-19 data with SIR
+model, https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model
+
+We can check the citation with the following script (version >= 2.18.0).
+
+.. code:: python
+
+    import covsirphy as cs
+    cs.__citation__
 
 .. |PyPI version| image:: https://badge.fury.io/py/covsirphy.svg
    :target: https://badge.fury.io/py/covsirphy

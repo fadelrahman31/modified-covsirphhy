@@ -9,6 +9,14 @@ covsirphy.visualization package
 Submodules
 ----------
 
+covsirphy.visualization.bar\_plot module
+----------------------------------------
+
+.. automodule:: covsirphy.visualization.bar_plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 covsirphy.visualization.colored\_map module
 -------------------------------------------
 
@@ -21,6 +29,14 @@ covsirphy.visualization.japan\_map module
 -----------------------------------------
 
 .. automodule:: covsirphy.visualization.japan_map
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+covsirphy.visualization.line\_plot module
+-----------------------------------------
+
+.. automodule:: covsirphy.visualization.line_plot
    :members:
    :undoc-members:
    :show-inheritance:

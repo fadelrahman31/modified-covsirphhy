@@ -1,17 +1,16 @@
 [tool.poetry]
 name = "covsirphy"
-version = "2.17.0"
+version = "2.18.0"
 description = "COVID-19 data analysis with phase-dependent SIR-derived ODE models"
-authors = ["Lisphilar <lisphilar@outlook.jp>"]
+authors = ["Hirokazu Takaya <lisphilar@outlook.jp>"]
 license = "Apache-2.0"
 repository = "https://github.com/lisphilar/covid19-sir"
 documentation = "https://lisphilar.github.io/covid19-sir/index.html"
 readme = "docs/README.rst"
-keywords = ["covid19", "covid"]
+keywords = ["covid19", "covid", "data engineering", "data science"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -19,15 +18,15 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6.9"
+python = "^3.7"
 numpy = "^1.18.5"
 optuna = "^2.3.0"
 pandas = "^1.1.5"
 seaborn = "^0.11.1"
 fsspec = {version = "^0.8.5", extras = ["http"]}
-scipy = "^1.5.4"
+scipy = "^1.4.1"
 scikit-learn = "^0.24.0"
-japanmap = "^0.0.21"
+japanmap = ">=0.0.21,<0.0.25"
 better-exceptions = "^0.3.2"
 requests = "^2.25.1"
 ruptures = "^1.1.1"
@@ -43,7 +42,7 @@ Unidecode = "^1.2.0"
 descartes = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
-autopep8 = "^1.5.5"
+autopep8 = "^1.5.6"
 flake8 = "^3.8.4"
 kaggle = "^1.5.10"
 Sphinx = "^3.4.3"
@@ -57,6 +56,7 @@ pytest-cov = "^2.10.1"
 sphinx-copybutton = "^0.3.1"
 plotly = "^4.14.3"
 recommonmark = "^0.7.1"
+Pillow = "^8.1.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

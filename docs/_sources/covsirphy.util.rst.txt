@@ -25,26 +25,10 @@ covsirphy.util.error module
    :undoc-members:
    :show-inheritance:
 
-covsirphy.util.file module
---------------------------
+covsirphy.util.filer module
+---------------------------
 
-.. automodule:: covsirphy.util.file
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-covsirphy.util.optimize module
-------------------------------
-
-.. automodule:: covsirphy.util.optimize
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-covsirphy.util.plotting module
-------------------------------
-
-.. automodule:: covsirphy.util.plotting
+.. automodule:: covsirphy.util.filer
    :members:
    :undoc-members:
    :show-inheritance:

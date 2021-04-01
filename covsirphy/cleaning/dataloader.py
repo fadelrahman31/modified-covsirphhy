@@ -291,11 +291,11 @@ class DataLoader(Term):
     #     Load the dataset regarding vaccination.
     #     https://github.com/owid/covid-19-data/tree/master/public/data
     #     https://ourworldindata.org/coronavirus
-        
+
     #     Args:
     #         basename (str): basename of the file to save the data
     #         verbose (int): level of verbosity
-        
+
     #     Returns:
     #         covsirphy.VaccineData: dataset regarding vaccines
     #     """

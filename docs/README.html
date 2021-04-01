@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.17.0
+                2.18.0-alpha
               </div>
             
           
@@ -99,6 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#inspiration">Inspiration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#support">Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#developers">Developers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#license-apache-license-2-0">License: Apache License 2.0</a></li>
@@ -113,7 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage_phases.html">Usage: phases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage_theoretical.html">Usage: SIR-derived models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="covsirphy.html">covsirphy package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="markdown/TERM.html">Term definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="markdown/TERM.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CODE_OF_CONDUCT.html">Contributor Covenant Code of Conduct</a></li>
 <li class="toctree-l1"><a class="reference internal" href="SECURITY.html">Security policy of CovsirPhy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Guideline of contribution</a></li>
@@ -235,8 +236,8 @@ visualization</a></p></li>
 <li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_phases.html">Phase setting with S-R Trend
 analysis</a></p></li>
 <li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_theoretical.html">Numerical simulation of ODE
-models</a></p></li>
-<li><p>SIR, SIR-D and SIR-F model</p></li>
+models</a>:
+SIR, SIR-D and SIR-F model</p></li>
 <li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_quickest.html">Phase-dependent parameter estimation of ODE
 models</a></p></li>
 <li><p><a class="reference external" href="https://lisphilar.github.io/covid19-sir/usage_quick.html">Scenario
@@ -258,7 +259,7 @@ each country</p></li>
 <p>If you have ideas or need new functionalities, please join this project.
 Any suggestions with <a class="reference external" href="https://github.com/lisphilar/covid19-sir/issues/new/choose">Github
 Issues</a>
-are always welcomed. Please read <a class="reference external" href="https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html">Guideline of
+are always welcomed. Questions are also great. Please read <a class="reference external" href="https://lisphilar.github.io/covid19-sir/CONTRIBUTING.html">Guideline of
 contribution</a>
 in advance.</p>
 </div>
@@ -309,6 +310,17 @@ documentation</a></p></li>
 model</a></p></li>
 </ul>
 </div>
+<div class="section" id="release-notes">
+<h2>Release notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h2>
+<p>Release notes are
+<a class="reference external" href="https://github.com/lisphilar/covid19-sir/releases">here</a>. Titles &amp;
+links of issues are listed with acknowledgement.</p>
+<p>We can see the release plan for the next stable version in <a class="reference external" href="https://github.com/lisphilar/covid19-sir/milestones">milestone
+page of the GitHub
+repository</a>. If
+you find a highly urgent matter, please let us know via <a class="reference external" href="https://github.com/lisphilar/covid19-sir/issues">issue
+page</a>.</p>
+</div>
 <div class="section" id="support">
 <h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
 <p>Please support this project as a developer (or a backer). <a class="reference external" href="https://opencollective.com/covsirphy"><img alt="Become a backer" src="https://opencollective.com/covsirphy/tiers/backer.svg?avatarHeight=36&amp;width=600" /></a></p>
@@ -321,10 +333,10 @@ the full list
 <p>This project started in Kaggle platform. Lisphilar published <a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">Kaggle
 Notebook: COVID-19 data with SIR
 model</a>
-on 12Feb2020, discussing with Kaggle community. On 07May2020,
-“covid19-sir” repository was created. On 10May2020, <code class="docutils literal notranslate"><span class="pre">covsirphy</span></code>
-version 1.0.0 was published in GitHub. Version 2.3.0 was released in
-PyPI on 28Jun2020.</p>
+on 12Feb2020 and developed it, discussing with Kaggle community. On
+07May2020, “covid19-sir” repository was created. On 10May2020,
+<code class="docutils literal notranslate"><span class="pre">covsirphy</span></code> version 1.0.0 was published in GitHub. First release in
+PyPI (version 2.3.0) was on 28Jun2020.</p>
 </div>
 <div class="section" id="license-apache-license-2-0">
 <h2>License: Apache License 2.0<a class="headerlink" href="#license-apache-license-2-0" title="Permalink to this headline">¶</a></h2>
@@ -335,15 +347,21 @@ file.</p>
 <div class="section" id="citation">
 <h2>Citation<a class="headerlink" href="#citation" title="Permalink to this headline">¶</a></h2>
 <p>We have no original papers the author and contributors wrote, but please
-cite this package as follows.</p>
-<p>CovsirPhy Development Team (2020), CovsirPhy, Python package for
-COVID-19 analysis with SIR-derived ODE models,
-<a class="reference external" href="https://github.com/lisphilar/covid19-sir">https://github.com/lisphilar/covid19-sir</a></p>
+cite this library as follows with version number
+(<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">covsirphy</span> <span class="pre">as</span> <span class="pre">cs;</span> <span class="pre">cs.__version__</span></code>).</p>
+<p>CovsirPhy Development Team (2020-2021), CovsirPhy version [version
+number]: Python library for COVID-19 analysis with phase-dependent
+SIR-derived ODE models, <a class="reference external" href="https://github.com/lisphilar/covid19-sir">https://github.com/lisphilar/covid19-sir</a></p>
 <p>If you want to use SIR-F model, S-R trend analysis, phase-dependent
 approach to SIR-derived models, and other scientific method performed
 with CovsirPhy, please cite the next Kaggle notebook.</p>
-<p>Lisphilar (2020), Kaggle notebook, COVID-19 data with SIR model,
-<a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model</a></p>
+<p>Hirokazu Takaya (2020-2021), Kaggle Notebook, COVID-19 data with SIR
+model, <a class="reference external" href="https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model">https://www.kaggle.com/lisphilar/covid-19-data-with-sir-model</a></p>
+<p>We can check the citation with the following script (version &gt;= 2.18.0).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">covsirphy</span> <span class="k">as</span> <span class="nn">cs</span>
+<span class="n">cs</span><span class="o">.</span><span class="n">__citation__</span>
+</pre></div>
+</div>
 </div>
 </div>
 
