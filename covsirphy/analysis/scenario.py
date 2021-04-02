@@ -1626,6 +1626,7 @@ class Scenario(Term):
                 "metric" : "mae",
                 "objective" : "regression",
                 "num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                'max_depth': trial.suggest_int('max_depth', 2, 3),
                 "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
                 "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
                 "feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
@@ -1649,6 +1650,7 @@ class Scenario(Term):
                 "metric" : "mae",
                 "objective" : "regression",
                 "num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                'max_depth': trial.suggest_int('max_depth', 2, 3),
                 "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
                 "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
                 "feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
@@ -1672,6 +1674,7 @@ class Scenario(Term):
                 "metric" : "mae",
                 "objective" : "regression",
                 "num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                'max_depth': trial.suggest_int('max_depth', 2, 3),
                 "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
                 "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
                 "feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
@@ -1695,6 +1698,7 @@ class Scenario(Term):
                 "metric" : "mae",
                 "objective" : "regression",
                 "num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                'max_depth': trial.suggest_int('max_depth', 2, 3),
                 "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
                 "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
                 "feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
@@ -1766,6 +1770,7 @@ class Scenario(Term):
                 "metric" : "mae",
                 "objective" : "regression",
                 "num_leaves" : int(parameters["num_leaves"]),
+                'max_depth': int(parameters["max_depth"]),
                 "learning_rate" : float(parameters["learning_rate"]),
                 "bagging_fraction": float(parameters["bagging_fraction"]),
                 "feature_fraction": float(parameters["feature_fraction"]),
@@ -1792,6 +1797,7 @@ class Scenario(Term):
                 "metric" : "mae",
                 "objective" : "regression",
                 "num_leaves" : int(parameters["num_leaves"]),
+                'max_depth': int(parameters["max_depth"]),
                 "learning_rate" : float(parameters["learning_rate"]),
                 "bagging_fraction": float(parameters["bagging_fraction"]),
                 "feature_fraction": float(parameters["feature_fraction"]),
@@ -1818,6 +1824,7 @@ class Scenario(Term):
                 "metric" : "mae",
                 "objective" : "regression",
                 "num_leaves" : int(parameters["num_leaves"]),
+                'max_depth': int(parameters["max_depth"]),
                 "learning_rate" : float(parameters["learning_rate"]),
                 "bagging_fraction": float(parameters["bagging_fraction"]),
                 "feature_fraction": float(parameters["feature_fraction"]),
@@ -1844,6 +1851,7 @@ class Scenario(Term):
                 "metric" : "mae",
                 "objective" : "regression",
                 "num_leaves" : int(parameters["num_leaves"]),
+                'max_depth': int(parameters["max_depth"]),
                 "learning_rate" : float(parameters["learning_rate"]),
                 "bagging_fraction": float(parameters["bagging_fraction"]),
                 "feature_fraction": float(parameters["feature_fraction"]),
@@ -1877,21 +1885,26 @@ class Scenario(Term):
         predictedData = predictedData.to_numpy()
 
         # Train Score Function
+
+        print("=== SCORING THETA ===")
         theta_score = dict()
         theta_train_score_data = _theta_objective_predict(train_parameter_theta, X_test)
         theta_score['theta_mape'] = mean_absolute_percentage_error(yTestThetaDF, theta_train_score_data)
         theta_score['theta_r2'] = r2_score(yTestThetaDF, theta_train_score_data)
-         
+
+        print("=== SCORING KAPPA ===") 
         kappa_score = dict()
         kappa_train_score_data = _kappa_objective_predict(train_parameter_kappa, X_test)
         kappa_score['kappa_mape'] = mean_absolute_percentage_error(yTestKappaDF, kappa_train_score_data)
         kappa_score['kappa_r2'] = r2_score(yTestKappaDF, kappa_train_score_data)
 
+        print("=== SCORING RHO ===")
         rho_score = dict()
         rho_train_score_data = _rho_objective_predict(train_parameter_rho, X_test)
         rho_score['rho_mape'] = mean_absolute_percentage_error(yTestRhoDF, rho_train_score_data)
         rho_score['rho_r2'] = r2_score(yTestRhoDF, rho_train_score_data)
 
+        print("=== SCORING SIGMA ===")
         sigma_score = dict()
         sigma_train_score_data = _sigma_objective_predict(train_parameter_sigma, X_test)
         sigma_score['sigma_mape'] = mean_absolute_percentage_error(yTestSigmaDF, sigma_train_score_data)
