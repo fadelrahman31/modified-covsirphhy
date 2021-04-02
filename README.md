@@ -18,3 +18,6 @@ Latest stable Package version release : 2.18.0
 
 [21/3/2021]
 - Additional Scenario.fit() and Scenario.predict() using Light GBM regressor functionality
+
+[2/4/2021]
+- Returns the R2 and MAPE Score of fit and predict train function using LightGBM
