@@ -1634,8 +1634,8 @@ class Scenario(Term):
                 "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
                 #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
                 #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.5, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.5, 1.0),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
                 "bagging_freq": 5,
                 "verbose": 0
             }
@@ -1664,8 +1664,8 @@ class Scenario(Term):
                 "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
                 #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
                 #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.5, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.5, 1.0),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
                 "bagging_freq": 5,
                 "verbose": 0
             }
@@ -1694,8 +1694,8 @@ class Scenario(Term):
                 "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
                 #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
                 #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.5, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.5, 1.0),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
                 "bagging_freq": 5,
                 "verbose": 0
             }
@@ -1724,8 +1724,8 @@ class Scenario(Term):
                 "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
                 #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
                 #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.5, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.5, 1.0),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
                 "bagging_freq": 5,
                 "verbose": 0
             }
