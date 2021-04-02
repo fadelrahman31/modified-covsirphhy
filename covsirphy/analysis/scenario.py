@@ -1521,7 +1521,7 @@ class Scenario(Term):
         self.predict(name=name, **find_args(Scenario.predict, **kwargs))
         return self
 
-    def fit_predict_sirf_lgbm(self, oxcgrt_data=None, name="Main", test_size=0.2, seed=0, delay=None, removed_cols=None):
+    def fit_predict_sirf_lgbm(self, oxcgrt_data=None, name="Main", test_size=0.2, seed=0, delay=None, removed_cols=None, days=None):
         """
         Learn the relationship of ODE parameter values and delayed OxCGRT scores using Elastic Net regression,
         assuming that OxCGRT scores will impact on ODE parameter values with delay.
