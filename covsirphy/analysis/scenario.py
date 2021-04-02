@@ -1930,4 +1930,4 @@ class Scenario(Term):
         # Set new future phases
         for phase_dict in phase_df.to_dict(orient="records"):
             self.add(name=name, **phase_dict)
-        return self, theta_score, kappa_score, rho_score, sigma_score
+        return self, theta_score, train_parameter_theta, kappa_score, train_parameter_kappa, rho_score, train_parameter_rho, sigma_score, train_parameter_sigma
