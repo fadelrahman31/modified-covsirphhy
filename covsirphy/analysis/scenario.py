@@ -1876,6 +1876,27 @@ class Scenario(Term):
         predictedData = pd.DataFrame(list(zip(theta_predicted, kappa_predicted, rho_predicted, sigma_predicted)))
         predictedData = predictedData.to_numpy()
 
+        # Train Score Function
+        theta_score = dict()
+        theta_train_score_data = _theta_objective_predict(train_parameter_theta, X_test)
+        theta_score['theta_mape'] = mean_absolute_percentage_error(yTestThetaDF, theta_train_score_data)
+        theta_score['theta_r2'] = r2_score(yTestThetaDF, theta_train_score_data)
+         
+        kappa_score = dict()
+        kappa_train_score_data = _kappa_objective_predict(train_parameter_kappa, X_test)
+        kappa_score['kappa_mape'] = mean_absolute_percentage_error(yTestKappaDF, kappa_train_score_data)
+        kappa_score['kappa_r2'] = r2_score(yTestKappaDF, kappa_train_score_data)
+
+        rho_score = dict()
+        rho_train_score_data = _rho_objective_predict(train_parameter_rho, X_test)
+        rho_score['rho_mape'] = mean_absolute_percentage_error(yTestRhoDF, rho_train_score_data)
+        rho_score['rho_r2'] = r2_score(yTestRhoDF, rho_train_score_data)
+
+        sigma_score = dict()
+        sigma_train_score_data = _sigma_objective_predict(train_parameter_sigma, X_test)
+        sigma_score['sigma_mape'] = mean_absolute_percentage_error(yTestSigmaDF, sigma_train_score_data)
+        sigma_score['sigma_r2'] = r2_score(yTestSigmaDF, sigma_train_score_data)
+
         # -> end_date/parameter values
         df = pd.DataFrame(predictedData, index=X_target.index, columns=model.PARAMETERS)
         df = df.applymap(lambda x: np.around(x, 4 - int(floor(log10(abs(x)))) - 1))
@@ -1888,4 +1909,4 @@ class Scenario(Term):
         # Set new future phases
         for phase_dict in phase_df.to_dict(orient="records"):
             self.add(name=name, **phase_dict)
-        return self
+        return self, theta_score, kappa_score, rho_score, sigma_score
