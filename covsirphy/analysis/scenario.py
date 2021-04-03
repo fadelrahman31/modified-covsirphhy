@@ -1525,6 +1525,253 @@ class Scenario(Term):
         self.predict(name=name, **find_args(Scenario.predict, **kwargs))
         return self
 
+    def fit_predict_sir_lgbm(self, oxcgrt_data=None, name="Main", test_size=0.2, seed=0, delay=None, removed_cols=None, days=None):
+        """
+        Learn the relationship of ODE parameter values and delayed OxCGRT scores using Elastic Net regression,
+        assuming that OxCGRT scores will impact on ODE parameter values with delay.
+        Min-max scaling and Elastic net regression with parameter optimization and cross validation.
+
+        Args:
+            oxcgrt_data (covsirphy.OxCGRTData): OxCGRT dataset, deprecated
+            name (str): scenario name
+            test_size (float): proportion of the test dataset of Elastic Net regression
+            seed (int): random seed when spliting the dataset to train/test data
+            delay (int): delay period [days], please refer to Scenario.estimate_delay()
+            removed_cols (list[str] or None): list of variables to remove from X dataset or None (indicators used to estimate delay period)
+            days
+
+        Raises:
+            covsirphy.UnExecutedError: Scenario.estimate() or Scenario.add() were not performed
+
+        Returns:
+
+        Note:
+            @oxcgrt_data argument was deprecated. Please use Scenario.register(extras=[oxcgrt_data]).
+        """
+        warnings.simplefilter("ignore", category=ConvergenceWarning)
+        # Register OxCGRT data
+        if oxcgrt_data is not None:
+            warnings.warn(
+                "Please use Scenario.register(extras=[oxcgrt_data]) rather than Scenario.fit(oxcgrt_data).",
+                DeprecationWarning, stacklevel=1)
+            self.register(extras=[oxcgrt_data])
+        # ODE model
+        model = self._tracker(name).last_model
+        if model is None:
+            raise UnExecutedError(
+                "Scenario.estimate() or Scenario.add()",
+                message=f", specifying @model (covsirphy.SIRF etc.) and @name='{name}'.")
+        # Set delay effect
+        if delay is None:
+            delay, delay_df = self.estimate_delay(oxcgrt_data)
+            removed_cols = list(set(delay_df.columns.tolist()) | set(removed_cols or []))
+        else:
+            delay = self._ensure_natural_int(delay, name="delay")
+            removed_cols = removed_cols or None
+        # Create training/test dataset
+        try:
+            X, y, X_target = self._fit_create_data(
+                model=model, name=name, delay=delay, removed_cols=removed_cols)
+        except NotRegisteredExtraError:
+            raise NotRegisteredExtraError(
+                "Scenario.register(jhu_data, population_data, extras=[...])",
+                message="with extra datasets") from None
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=seed)
+        
+        # Prepare Dataset for Training Light GBM
+
+        yTrainRho = y_train['rho'].to_list()
+        yTrainRhoDF = pd.DataFrame(yTrainRho)
+
+        yTrainSigma = y_train['sigma'].to_list()
+        yTrainSigmaDF = pd.DataFrame(yTrainSigma)
+
+        yTestRho = y_test['rho'].to_list()
+        yTestRhoDF = pd.DataFrame(yTestRho)
+
+        yTestSigma = y_test['sigma'].to_list()
+        yTestSigmaDF = pd.DataFrame(yTestSigma)
+
+        # Training Function
+
+        def _rho_objective_tuning(trial):
+            # Rho
+            trainRho = lgb.Dataset(X_train, yTrainRhoDF)
+            valRho = lgb.Dataset(X_test, yTestRhoDF, reference=trainRho)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                #"num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                #'max_depth': trial.suggest_int('max_depth', 2, 3),
+                #"num_leaves" : trial.suggest_int("num_leaves", 2, 15),
+                #"max_depth": trial.suggest_int("max_depth", 2, 4),
+                "num_leaves" : trial.suggest_int("num_leaves", 2, 7),
+                "max_depth": trial.suggest_int("max_depth", 2, 3),
+                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
+                #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
+                #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
+                "bagging_freq": 5,
+                "verbose": 0
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
+            preds = model.predict(X_test)
+            accuracy =  mean_absolute_error(yTestRhoDF, preds)
+            return accuracy
+
+        def _sigma_objective_tuning(trial):
+            # Sigma
+            trainSigma = lgb.Dataset(X_train, yTrainSigmaDF)
+            valSigma = lgb.Dataset(X_test, yTestSigmaDF, reference=trainSigma)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                #"num_leaves" : trial.suggest_int("num_leaves", 2, 256),
+                #'max_depth': trial.suggest_int('max_depth', 2, 3),
+                #"num_leaves" : trial.suggest_int("num_leaves", 2, 15),
+                #"max_depth": trial.suggest_int("max_depth", 2, 4),
+                "num_leaves" : trial.suggest_int("num_leaves", 2, 7),
+                "max_depth": trial.suggest_int("max_depth", 2, 3),
+                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
+                #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
+                #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
+                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
+                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
+                "bagging_freq": 5,
+                "verbose": 0
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
+            preds = model.predict(X_test)
+            accuracy =  mean_absolute_error(yTestSigmaDF, preds)
+            return accuracy
+        
+        # Tuning Process by Calling All of the Tuning Functions
+
+        train_parameter_rho = dict()
+        train_parameter_sigma = dict()
+
+        # Rho
+        print("==== TUNING TRAIN RHO ===")
+        study3 = optuna.create_study(direction="maximize")
+        study3.optimize(_rho_objective_tuning, n_trials=1000)
+
+        trial3 = study3.best_trial
+        for key, value in trial3.params.items():
+            train_parameter_rho[key] = value
+
+        # Sigma
+        print("==== TUNING TRAIN SIGMA ===")
+        study4 = optuna.create_study(direction="maximize")
+        study4.optimize(_sigma_objective_tuning, n_trials=1000)
+
+        trial4 = study4.best_trial
+        for key, value in trial4.params.items():
+            train_parameter_sigma[key] = value
+
+        # Predict Function
+
+        def _rho_objective_predict(paramsDict, dataPred):
+
+            parameters = paramsDict.copy()
+
+            # Rho
+            trainRho = lgb.Dataset(X_train, yTrainRhoDF)
+            valRho = lgb.Dataset(X_test, yTestRhoDF, reference=trainRho)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : int(parameters["num_leaves"]),
+                "max_depth": int(parameters["max_depth"]),
+                "learning_rate" : float(parameters["learning_rate"]),
+                "bagging_fraction": float(parameters["bagging_fraction"]),
+                "feature_fraction": float(parameters["feature_fraction"]),
+                "bagging_freq": 5,
+                "verbose": -1
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
+            preds = model.predict(dataPred)
+
+            return preds
+
+        def _sigma_objective_predict(paramsDict, dataPred):
+
+            parameters = paramsDict.copy()
+
+            # Sigma
+            trainSigma = lgb.Dataset(X_train, yTrainSigmaDF)
+            valSigma = lgb.Dataset(X_test, yTestSigmaDF, reference=trainSigma)
+
+            params = {
+                "boosting_type": "gbdt",
+                "metric" : "mae",
+                "objective" : "regression",
+                "num_leaves" : int(parameters["num_leaves"]),
+                "max_depth": int(parameters["max_depth"]),
+                "learning_rate" : float(parameters["learning_rate"]),
+                "bagging_fraction": float(parameters["bagging_fraction"]),
+                "feature_fraction": float(parameters["feature_fraction"]),
+                "bagging_freq": 5,
+                "verbose": -1
+            }
+
+            # Model for Theta
+            model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
+            preds = model.predict(dataPred)
+
+            return preds       
+
+        print("==== PREDICTING RHO ===")
+        rho_predicted = _rho_objective_predict(train_parameter_rho, X_target)
+        rho_predicted = rho_predicted.tolist()
+
+        print("==== PREDICTING SIGMA ===")
+        sigma_predicted = _sigma_objective_predict(train_parameter_sigma, X_target)
+        sigma_predicted = sigma_predicted.tolist()
+
+        predictedData = pd.DataFrame(list(zip(rho_predicted, sigma_predicted)))
+        predictedData = predictedData.to_numpy()
+
+        # Train Score Function
+
+        print("=== SCORING RHO ===")
+        rho_score = dict()
+        rho_train_score_data = _rho_objective_predict(train_parameter_rho, X_test)
+        rho_score['rho_mape'] = mean_absolute_percentage_error(yTestRhoDF, rho_train_score_data)
+        rho_score['rho_r2'] = r2_score(yTestRhoDF, rho_train_score_data)
+
+        print("=== SCORING SIGMA ===")
+        sigma_score = dict()
+        sigma_train_score_data = _sigma_objective_predict(train_parameter_sigma, X_test)
+        sigma_score['sigma_mape'] = mean_absolute_percentage_error(yTestSigmaDF, sigma_train_score_data)
+        sigma_score['sigma_r2'] = r2_score(yTestSigmaDF, sigma_train_score_data)
+
+        # -> end_date/parameter values
+        df = pd.DataFrame(predictedData, index=X_target.index, columns=model.PARAMETERS)
+        df = df.applymap(lambda x: np.around(x, 4 - int(floor(log10(abs(x)))) - 1))
+        df.index = [date.strftime(self.DATE_FORMAT) for date in df.index]
+        df.index.name = "end_date"
+        # Days to predict
+        days = days or [len(X_target) - 1]
+        self._ensure_list(days, candidates=list(range(len(X_target))), name="days")
+        phase_df = df.reset_index().loc[days, :]
+        # Set new future phases
+        for phase_dict in phase_df.to_dict(orient="records"):
+            self.add(name=name, **phase_dict)
+        return self, rho_score, train_parameter_rho, sigma_score, train_parameter_sigma
+
     def fit_predict_sirf_lgbm(self, oxcgrt_data=None, name="Main", test_size=0.2, seed=0, delay=None, removed_cols=None, days=None):
         """
         Learn the relationship of ODE parameter values and delayed OxCGRT scores using Elastic Net regression,
