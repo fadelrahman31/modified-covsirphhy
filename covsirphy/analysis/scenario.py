@@ -1405,9 +1405,12 @@ class Scenario(Term):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=seed)
         # Create pipeline for learning
         cv = linear_model.MultiTaskElasticNetCV(
-            alphas=[0, 0.001, 0.01, 0.1, 1, 10, 100, 1000],
-            l1_ratio=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-            cv=5, n_jobs=-1)
+            #alphas=[0, 0.001, 0.01, 0.1, 1, 10, 100, 1000],
+            #l1_ratio=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            #cv=5, n_jobs=-1
+            l1_ratio=[0.2, 0.4, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.96, 0.97, 0.98, 0.99, 0.995, 0.996, 0.997, 0.998, 0.999, 0.9995, 0.9996, 0.9997, 0.9998, 0.9999, 1.0],
+            cv=5, n_jobs=-1
+        )
         steps = [
             ("scaler", MinMaxScaler()),
             ("regressor", cv),
