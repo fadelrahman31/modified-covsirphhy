@@ -1890,8 +1890,8 @@ class Scenario(Term):
                 #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
                 "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
                 "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                #"bagging_freq": 5,
-                "bagging_freq": 2,
+                "bagging_freq": 5,
+                #"bagging_freq": 2,
                 #"num_iterations": 1000,
                 "verbose": 0
             }
@@ -1925,8 +1925,8 @@ class Scenario(Term):
                 #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
                 "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
                 "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                #"bagging_freq": 5,
-                "bagging_freq": 2,
+                "bagging_freq": 5,
+                #"bagging_freq": 2,
                 #"num_iterations": 1000,
                 "verbose": 0
             }
@@ -1960,8 +1960,8 @@ class Scenario(Term):
                 #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
                 "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
                 "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                #"bagging_freq": 5,
-                "bagging_freq": 2,
+                "bagging_freq": 5,
+                #"bagging_freq": 2,
                 #"num_iterations": 1000,
                 "verbose": 0
             }
@@ -1995,8 +1995,8 @@ class Scenario(Term):
                 #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
                 "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
                 "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                #"bagging_freq": 5,
-                "bagging_freq": 2,
+                "bagging_freq": 5,
+                #"bagging_freq": 2,
                 #"num_iterations": 1000,
                 "verbose": 0
             }
