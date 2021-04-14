@@ -13,16 +13,20 @@ Latest stable Package version release : 2.19.0
 [12/3/2021]
 - Load Vaccine Data from Dataframe functionality
 
-_Deprecated in 2.18, please refer to history backup version of this repository_
+_Deprecated in 2.19, please refer to history backup version of this repository_
 
 [15/3/2021]
+
 ~- Additional MAPE score evaluation to Scenario.fit() functionality~
 
 [21/3/2021]
+
 ~- Additional Scenario.fit() and Scenario.predict() using Light GBM regressor functionality for SIR-F Model~
 
 [2/4/2021]
+
 ~- Returns the R2 and MAPE Score of fit and predict train function using LightGBM~
 
 [3/4/2021]
+
 ~- Additional Scenario.fit() and Scenario.predict() using Light GBM regressor functionality for SIR Model~
