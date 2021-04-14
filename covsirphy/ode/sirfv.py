@@ -97,7 +97,7 @@ class SIRFV(ModelBase):
         return np.array([dsdt, didt, drdt, dfdt, dvdt])
 
     @classmethod
-    def param_range(cls, taufree_df, population):
+    def param_range(cls, taufree_df, population, quantiles=(0.1, 0.9)):
         """
         Define the range of parameters (not including tau value).
 
@@ -128,16 +128,23 @@ class SIRFV(ModelBase):
         # omega = 0 - (dS/dt + dI/dt + dR/dt + dF/dt)
         omega_series = (n - s + i + r + f).diff() / t.diff()
         # Calculate range
-        _dict = {param: (0, 1) for param in cls.PARAMETERS}
-        if not kappa_series.empty:
-            _dict["kappa"] = tuple(sigma_series.quantile(
-                cls.QUANTILE_RANGE).clip(0, 1))
-        if not sigma_series.empty:
-            _dict["sigma"] = tuple(sigma_series.quantile(
-                cls.QUANTILE_RANGE).clip(0, 1))
-        if not omega_series.empty:
-            _dict["omega"] = tuple(omega_series.quantile(
-                cls.QUANTILE_RANGE).clip(0, 1))
+
+        # _dict = {param: (0, 1) for param in cls.PARAMETERS}
+        # if not kappa_series.empty:
+        #     _dict["kappa"] = tuple(sigma_series.quantile(
+        #         cls.QUANTILE_RANGE).clip(0, 1))
+        # if not sigma_series.empty:
+        #     _dict["sigma"] = tuple(sigma_series.quantile(
+        #         cls.QUANTILE_RANGE).clip(0, 1))
+        # if not omega_series.empty:
+        #     _dict["omega"] = tuple(omega_series.quantile(
+        #         cls.QUANTILE_RANGE).clip(0, 1))
+        _dict = {
+            k: tuple(v.quantile(quantiles).clip(0, 1)) for (k, v)
+            in zip(["kappa", "sigma", "omega"], [kappa_series, sigma_series, omega_series])
+        }
+        _dict["theta"] = (0,1)
+        _dict["rho"] = (0,1)
         return _dict
 
     @classmethod
@@ -237,7 +244,7 @@ class SIRFV(ModelBase):
                 "1/alpha2 [day]": int(tau / 24 / 60 / self.kappa),
                 "1/beta [day]": int(tau / 24 / 60 / self.rho),
                 "1/gamma [day]": int(tau / 24 / 60 / self.sigma),
-                "Vaccinated [persons/day]": int(self.omega * self.population)
+                "Vaccination rate [day]": int(self.omega)
             }
         except ZeroDivisionError:
             return {p: None for p in self.DAY_PARAMETERS}
