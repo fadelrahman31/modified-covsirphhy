@@ -176,8 +176,10 @@ class SIRFV(ModelBase):
         df = cls._ensure_dataframe(
             data_df, name="data_df", columns=cls.VALUE_COLUMNS)
         # Calculate dimensional variables
-        df[cls.S] = 0
-        df[cls.V] = 0
+        #df[cls.S] = 0
+        #df[cls.V] = 0
+        df[cls.S] = population - df[cls.C]
+        df[cls.V] = df[cls.R] - df[cls.CI]
         return df
 
     @classmethod
