@@ -13,6 +13,9 @@ Latest stable Package version release : 2.19.0
 [12/3/2021]
 - Load Vaccine Data from Dataframe functionality
 
+[14/4/2021]
+- Rolling back SIR-FV model using Omega as Vaccination Rate
+
 _Deprecated in 2.19, please refer to history backup version of this repository_
 
 [15/3/2021]
