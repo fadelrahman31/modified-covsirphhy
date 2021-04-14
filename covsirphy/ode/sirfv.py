@@ -125,11 +125,11 @@ class SIRFV(ModelBase):
         kappa_series = f.diff() / t.diff() / i
         # sigma = (dR/dt) / I
         sigma_series = r.diff() / t.diff() / i
-        # omega = 0 - (dS/dt + dI/dt + dR/dt + dF/dt) / n
-        omega_series = (n - s + i + r + f).diff() / t.diff() / n
+        # omega = 0 - (dS/dt + dI/dt + dR/dt + dF/dt)
+        omega_series = (n - s + i + r + f).diff() / t.diff()
         # Calculate range
         _dict = {param: (0, 1) for param in cls.PARAMETERS}
-         if not kappa_series.empty:
+        if not kappa_series.empty:
             _dict["kappa"] = tuple(sigma_series.quantile(
                 cls.QUANTILE_RANGE).clip(0, 1))
         if not sigma_series.empty:
