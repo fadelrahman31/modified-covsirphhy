@@ -3,7 +3,7 @@ _for **research intentional purposes only**_ all credits and updated real-time p
 This repository was modified by [Fadel Nararia Rahman](https://fadelrahman.com) for COVID-19 research purposes in Indonesia.
 
 [Covsirphy Readme Docs](https://lisphilar.github.io/covid19-sir)<br>
-Latest stable Package version release : 2.18.0
+Latest stable Package version release : 2.19.0
 
 > **List of Updated Features**
 
@@ -12,6 +12,8 @@ Latest stable Package version release : 2.18.0
 
 [12/3/2021]
 - Load Vaccine Data from Dataframe functionality
+
+~ _Deprecated in 2.18, please refer to history backup version of this repository_ ~
 
 [15/3/2021]
 - Additional MAPE score evaluation to Scenario.fit() functionality

@@ -2,30 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import copy
-from datetime import timedelta
-from math import log10, floor
 import warnings
 import sys
 import numpy as np
 import pandas as pd
-import optuna
-import lightgbm as lgb
-from sklearn.model_selection import train_test_split
-from sklearn import linear_model
-from sklearn.exceptions import ConvergenceWarning
-from sklearn.metrics import r2_score
-from sklearn.metrics import mean_absolute_error
-from sklearn.metrics import mean_absolute_percentage_error
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler
 from covsirphy.util.argument import find_args
 from covsirphy.util.error import deprecate, ScenarioNotFoundError, UnExecutedError
 from covsirphy.util.error import NotRegisteredMainError, NotRegisteredExtraError
 from covsirphy.util.error import NotInteractiveError
+from covsirphy.util.evaluator import Evaluator
 from covsirphy.util.term import Term
 from covsirphy.visualization.line_plot import line_plot
 from covsirphy.visualization.bar_plot import bar_plot
 from covsirphy.cleaning.jhu_data import JHUData
+from covsirphy.regression.reg_handler import RegressionHandler
 from covsirphy.analysis.param_tracker import ParamTracker
 from covsirphy.analysis.data_handler import DataHandler
 
@@ -69,8 +59,8 @@ class Scenario(Term):
             pass
         # Interactive (True) / script (False) mode
         self._interactive = hasattr(sys, "ps1")
-        # Prediction of parameter values in the future phases: {name: (regression model, X_target)}
-        self._lm_dict = {}
+        # Prediction of parameter values in the future phases: {name: RegressorBase)}
+        self._reghandler_dict = {}
 
     def __getitem__(self, key):
         """
@@ -608,15 +598,17 @@ class Scenario(Term):
             If 'Main' was used as @name, main PhaseSeries will be used.
             If @columns is None, all columns will be shown.
         """
-        df = self._summary(name=name)
+        df = self._summary(name=name).dropna(how="all", axis=1).fillna(self.UNKNOWN)
         all_cols = df.columns.tolist()
-        if set(self.EST_COLS).issubset(all_cols):
-            all_cols = [col for col in all_cols if col not in self.EST_COLS]
-            all_cols += self.EST_COLS
-        columns = columns or all_cols
-        self._ensure_list(columns, candidates=all_cols, name="columns")
-        df = df.loc[:, columns]
-        return df.dropna(how="all", axis=1).fillna(self.UNKNOWN)
+        # Columns were specified
+        if columns is not None:
+            self._ensure_list(columns, all_cols, name="columns")
+            return df.loc[:, columns]
+        # Metrics, Trials, Runtime will be moved to right
+        right_set = set([*Evaluator.metrics(), self.TRIALS, self.RUNTIME])
+        left_cols = [col for col in all_cols if col not in right_set]
+        right_cols = [col for col in all_cols if col in right_set]
+        return df.loc[:, left_cols + right_cols]
 
     def trend(self, min_size=None, force=True, name="Main", show_figure=True, filename=None, **kwargs):
         """
@@ -1009,7 +1001,10 @@ class Scenario(Term):
         df = df.reset_index(drop=True).explode(self.DATE)
         # Columns
         df = df.drop(
-            [self.TENSE, self.START, self.END, self.ODE, self.TAU, *self.EST_COLS],
+            [
+                self.TENSE, self.START, self.END, self.ODE, self.TAU,
+                *Evaluator.metrics(), self.TRIALS, self.RUNTIME
+            ],
             axis=1, errors="ignore")
         df = df.set_index(self.DATE)
         for col in df.columns:
@@ -1204,32 +1199,34 @@ class Scenario(Term):
         self.add(name=target, **param_dict)
         self.estimate(model, name=target, **est_kwargs)
 
-    def score(self, metrics="RMSLE", variables=None, phases=None, past_days=None, name="Main", y0_dict=None):
+    def score(self, variables=None, phases=None, past_days=None, name="Main", y0_dict=None, **kwargs):
         """
         Evaluate accuracy of phase setting and parameter estimation of all enabled phases all some past days.
 
         Args:
-            metrics (str): "MAE", "MSE", "MSLE", "RMSE" or "RMSLE"
             variables (list[str] or None): variables to use in calculation
             phases (list[str] or None): phases to use in calculation
             past_days (int or None): how many past days to use in calculation, natural integer
             name(str): phase series name. If 'Main', main PhaseSeries will be used
             y0_dict(dict[str, float] or None): dictionary of initial values of variables
+            kwargs: keyword arguments of covsirphy.Evaluator.score()
 
         Returns:
-            float: score with the specified metrics
+            float: score with the specified metrics (covsirphy.Evaluator.score())
 
         Note:
             If @variables is None, ["Infected", "Fatal", "Recovered"] will be used.
             "Confirmed", "Infected", "Fatal" and "Recovered" can be used in @variables.
             If @phases is None, all phases will be used.
             @phases and @past_days can not be specified at the same time.
+
+        Note:
+            Please refer to covsirphy.Evaluator.score() for metrics.
         """
         tracker = self._tracker(name)
         if past_days is not None:
             if phases is not None:
-                raise ValueError(
-                    "@phases and @past_days cannot be specified at the same time.")
+                raise ValueError("@phases and @past_days cannot be specified at the same time.")
             past_days = self._ensure_natural_int(past_days, name="past_days")
             # Separate a phase, if possible
             beginning_date = self.date_change(self._data.last_date, days=0 - past_days)
@@ -1243,20 +1240,21 @@ class Scenario(Term):
                 in enumerate(tracker.series)
                 if unit >= beginning_date
             ]
-        return tracker.score(
-            metrics=metrics, variables=variables, phases=phases, y0_dict=y0_dict)
+        return tracker.score(variables=variables, phases=phases, y0_dict=y0_dict, **kwargs)
 
     def estimate_delay(self, oxcgrt_data=None, indicator="Stringency_index",
-                       target="Confirmed", value_range=(7, None)):
+                       target="Confirmed", percentile=25, limits=(7, 30), **kwargs):
         """
-        Estimate the mode value of delay period [days] between the indicator and the target.
-        We assume that the indicator impact on the target value with delay.
+        Estimate delay period [days], assuming the indicator impact on the target value with delay.
+        The average of representative value (percentile) and @min_size will be returned.
 
         Args:
             oxcgrt_data (covsirphy.OxCGRTData): OxCGRT dataset
             indicator (str): indicator name, a column of any registered datasets
             target (str): target name, a column of any registered datasets
-            value_range (tuple(int, int or None)): tuple, giving the minimum and maximum range to search for change over time
+            percentile (int): percentile to calculate the representative value, in (0, 100)
+            limits (tuple(int, int)): minimum/maximum size of the delay period [days]
+            kwargs: keyword arguments of DataHandler.estimate_delay()
 
         Raises:
             NotRegisteredMainError: either JHUData or PopulationData was not registered
@@ -1276,105 +1274,73 @@ class Scenario(Term):
 
         Note:
             - Average recovered period of JHU dataset will be used as returned value when the estimated value was not in value_range.
-            - Very long periods (outside of 99% quantile) are taken out.
             - @oxcgrt_data argument was deprecated. Please use Scenario.register(extras=[oxcgrt_data]).
         """
+        min_size, max_days = limits
         # Register OxCGRT data
         if oxcgrt_data is not None:
             warnings.warn(
                 "Please use Scenario.register(extras=[oxcgrt_data]) rather than Scenario.fit(oxcgrt_data).",
                 DeprecationWarning, stacklevel=1)
             self.register(extras=[oxcgrt_data])
+        # Un-used arguments
+        if "value_range" in kwargs:
+            warnings.warn("@value_range argument was deprecated.", DeprecationWarning, stacklevel=1)
         # Calculate delay values
-        df = self._data.estimate_delay(indicator=indicator, target=target, delay_name="Period Length")
-        # Filter out very long periods
-        df_filtered = df.loc[df["Period Length"] < df["Period Length"].quantile(0.99)]
-        if value_range[1] is not None:
-            df_filtered = df_filtered.loc[df["Period Length"] < value_range[1]]
-        # Calculate representative value (mode)
-        if df_filtered.empty:
+        df = self._data.estimate_delay(
+            indicator=indicator, target=target, min_size=min_size, delay_name="Period Length",
+            **find_args(DataHandler.estimate_delay, **kwargs))
+        # Remove NAs and sort
+        df.dropna(subset=["Period Length"], inplace=True)
+        df.sort_values("Period Length", inplace=True)
+        df.reset_index(inplace=True, drop=True)
+        # Apply upper limit for delay period if max_days is set
+        if max_days is not None:
+            df = df[df["Period Length"] <= max_days]
+        # Calculate representative value
+        if df.empty:
             return (self._data.recovery_period(), df)
-        delay_period = df_filtered["Period Length"].mode()[0]
+        # Calculate percentile
+        Q1 = np.percentile(df["Period Length"], percentile, interpolation="midpoint")
+        low_lim = min_size
+        delay_period = int((low_lim + Q1) / 2)
         return (int(delay_period), df)
 
-    def _fit_create_data(self, model, name, delay, removed_cols):
+    def fit(self, oxcgrt_data=None, name="Main", delay=None, removed_cols=None, metric=None, metrics="R2", **kwargs):
         """
-        Create train/test dataset for Elastic Net regression,
-        assuming that extra variables will impact on ODE parameter values with delay.
-
-        Args:
-            model (covsirphy.ModelBase): ODE model
-            name (str): scenario name
-            delay (int): delay period
-            removed_cols (list[str]): list of variables to remove from X dataset
-
-        Returns:
-            tuple(pandas.DataFrame):
-                - X dataset for linear regression
-                - y dataset for linear regression
-                - X dataset of the target dates
-        """
-        # Clear the future phases
-        self.clear(name=name, include_past=False)
-        # Parameter values
-        param_df = self._track_param(name=name)[model.PARAMETERS]
-        # Extra datasets (explanatory variables)
-        extras_df = self._data.records(main=False, extras=True).set_index(self.DATE)
-        extras_df = extras_df.loc[:, ~extras_df.columns.isin(removed_cols)]
-        # Apply delay on OxCGRT data
-        extras_df.index += timedelta(days=delay)
-        # Create training/test dataset
-        df = param_df.join(extras_df, how="inner")
-        df = df.rolling(window=delay).mean().dropna().drop_duplicates()
-        X = df.drop(model.PARAMETERS, axis=1)
-        y = df.loc[:, model.PARAMETERS]
-        # X dataset of the target dates
-        dates = pd.date_range(
-            start=param_df.index.max() + timedelta(days=1),
-            end=extras_df.index.max(),
-            freq="D")
-        X_target = extras_df.loc[dates]
-        return (X, y, X_target)
-
-    def fit(self, oxcgrt_data=None, name="Main", test_size=0.2, seed=0, delay=None, removed_cols=None):
-        """
-        Learn the relationship of ODE parameter values and delayed OxCGRT scores using Elastic Net regression,
-        assuming that OxCGRT scores will impact on ODE parameter values with delay.
-        Min-max scaling and Elastic net regression with parameter optimization and cross validation.
+        Fit regressors to predict the parameter values in the future phases,
+        assuming that indicators will impact on ODE parameter values/the number of cases with delay.
+        Please refer to covsirphy.RegressionHander class.
 
         Args:
             oxcgrt_data (covsirphy.OxCGRTData): OxCGRT dataset, deprecated
             name (str): scenario name
             test_size (float): proportion of the test dataset of Elastic Net regression
             seed (int): random seed when spliting the dataset to train/test data
-            delay (int): delay period [days], please refer to Scenario.estimate_delay()
+            delay (int or None): delay period [days] or None (Scenario.estimate_delay() calculate automatically)
             removed_cols (list[str] or None): list of variables to remove from X dataset or None (indicators used to estimate delay period)
+            metric (str or None): metric name or None (use @metrics)
+            metrics (str): alias of @metric
+            kwargs: keyword arguments of sklearn.model_selection.train_test_split(test_size=0.2, random_state=0)
 
         Raises:
             covsirphy.UnExecutedError: Scenario.estimate() or Scenario.add() were not performed
 
         Returns:
-            dict(str, object):
-                - scaler (object): scaler class
-                - regressor (object): regressor class
-                - alpha (float): alpha value used in Elastic Net regression
-                - l1_ratio (float): l1_ratio value used in Elastic Net regression
-                - score_train (float): determination coefficient of train dataset
-                - score_test (float): determination coefficient of test dataset
-                - X_train (numpy.array): X_train
-                - y_train (numpy.array): y_train
-                - X_test (numpy.array): X_test
-                - y_test (numpy.array): y_test
-                - X_target (numpy.array): X_target
-                - intercept (pandas.DataFrame): intercept and coefficients (Index ODE parameters, Columns indicators)
-                - coef (pandas.DataFrame): intercept and coefficients (Index ODE parameters, Columns indicators)
-                - delay (int): number of days of delay between policy measure and effect
-                  on number of confirmed cases.
+            dict: this is the same as covsirphy.Regressionhander.to_dict()
 
         Note:
             @oxcgrt_data argument was deprecated. Please use Scenario.register(extras=[oxcgrt_data]).
+
+        Note:
+            Please refer to covsirphy.Evaluator.score() for metric names.
+
+        Note:
+            If @seed is included in kwargs, this will be converted to @random_state.
         """
-        warnings.simplefilter("ignore", category=ConvergenceWarning)
+        metric = metric or metrics
+        # Clear the future phases
+        self.clear(name=name, include_past=False)
         # Register OxCGRT data
         if oxcgrt_data is not None:
             warnings.warn(
@@ -1395,72 +1361,21 @@ class Scenario(Term):
             delay = self._ensure_natural_int(delay, name="delay")
             removed_cols = removed_cols or None
         # Create training/test dataset
+        param_df = self._track_param(name=name)[model.PARAMETERS]
         try:
-            X, y, X_target = self._fit_create_data(
-                model=model, name=name, delay=delay, removed_cols=removed_cols)
+            records_df = self._data.records(main=True, extras=True).set_index(self.DATE)
         except NotRegisteredExtraError:
             raise NotRegisteredExtraError(
                 "Scenario.register(jhu_data, population_data, extras=[...])",
                 message="with extra datasets") from None
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=seed)
-        # Create pipeline for learning
-        cv = linear_model.MultiTaskElasticNetCV(
-            #alphas=[0, 0.001, 0.01, 0.1, 1, 10, 100, 1000],
-#            alphas=[0, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100, 500, 1000],
-            #l1_ratio=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-            #cv=5, n_jobs=-1
-            l1_ratio=[0.2, 0.4, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.96, 0.97, 0.98, 0.99, 0.995, 0.996, 0.997, 0.998, 0.999, 0.9995, 0.9996, 0.9997, 0.9998, 0.9999, 1.0],
-            cv=5, n_jobs=-1, normalize=True
-        )
-        steps = [
-            ("scaler", MinMaxScaler()),
-            ("regressor", cv),
-        ]
-        pipeline = Pipeline(steps=steps)
-        pipeline.fit(X_train, y_train)
-        # Register the pipeline and X-target for prediction
-        self._lm_dict[name] = (pipeline, X_target)
-        
-        # Get train score
-        r2_train_raw = r2_score(pipeline.predict(X_train), y_train)
-        r2_train = f"{r2_train_raw:.5f}"  
-        
-        mape_train_raw = mean_absolute_percentage_error(pipeline.predict(X_train), y_train)
-        mape_train = f"{mape_train_raw:.5f}" 
-        
-        score_train = "R2 Score: " + r2_train + ", MAPE Score: " + mape_train
-
-        # Get test score
-        ###score_test = r2_score(pipeline.predict(X_test), y_test)
-        r2_test_raw = r2_score(pipeline.predict(X_test), y_test)
-        r2_test = f"{r2_test_raw:.5f}" 
-
-        mape_test_raw = mean_absolute_percentage_error(pipeline.predict(X_test), y_test)
-        mape_test = f"{mape_test_raw:.5f}" 
-        score_test = "R2 Score: " + r2_test + ", MAPE Score: " + mape_test
-        
-        # Return information regarding regression model
-        reg_output = pipeline.named_steps.regressor
-        # Intercept and coefficients
-        intercept_df = pd.DataFrame(reg_output.coef_, index=y_train.columns, columns=X_train.columns)
-        intercept_df.insert(0, "Intercept", None)
-        intercept_df["Intercept"] = reg_output.intercept_
+        records_df = records_df.loc[:, ~records_df.columns.isin(removed_cols)]
+        # Fit regression models
+        data = param_df.join(records_df)
+        handler = RegressionHandler(data=data, model=model, delay=delay, **kwargs)
+        handler.fit(metric=metric)
+        self._reghandler_dict[name] = handler
         # Return information
-        return {
-            **{k: type(v) for (k, v) in steps},
-            "alpha": reg_output.alpha_,
-            "l1_ratio": reg_output.l1_ratio_,
-            "score_train": score_train,
-            "score_test": score_test,
-            "X_train": X_train,
-            "y_train": y_train,
-            "X_test": X_test,
-            "y_test": y_test,
-            "X_target": X_target,
-            "intercept": intercept_df,
-            "coef": intercept_df,
-            "delay": delay
-        }
+        return handler.to_dict(metric=metric)
 
     def predict(self, days=None, name="Main"):
         """
@@ -1480,20 +1395,17 @@ class Scenario(Term):
             covsirphy.Scenario: self
         """
         # Arguments
-        if name not in self._lm_dict:
+        if name not in self._reghandler_dict:
             raise UnExecutedError(f"Scenario.fit(name={name})")
-        model = self._tracker(name).last_model
         # Prediction with regression model
-        pipeline, X_target = self._lm_dict[name]
-        predicted = pipeline.predict(X_target)
+        handler = self._reghandler_dict[name]
+        df = handler.predict()
         # -> end_date/parameter values
-        df = pd.DataFrame(predicted, index=X_target.index, columns=model.PARAMETERS)
-        df = df.applymap(lambda x: np.around(x, 4 - int(floor(log10(abs(x)))) - 1))
         df.index = [date.strftime(self.DATE_FORMAT) for date in df.index]
         df.index.name = "end_date"
         # Days to predict
-        days = days or [len(X_target) - 1]
-        self._ensure_list(days, candidates=list(range(len(X_target))), name="days")
+        days = days or [len(df) - 1]
+        self._ensure_list(days, candidates=list(range(len(df))), name="days")
         phase_df = df.reset_index().loc[days, :]
         # Set new future phases
         for phase_dict in phase_df.to_dict(orient="records"):
@@ -1524,697 +1436,3 @@ class Scenario(Term):
         self.fit(oxcgrt_data=oxcgrt_data, name=name, **find_args(Scenario.fit, **kwargs))
         self.predict(name=name, **find_args(Scenario.predict, **kwargs))
         return self
-
-    def fit_predict_sir_lgbm(self, oxcgrt_data=None, name="Main", test_size=0.2, seed=0, delay=None, removed_cols=None, days=None):
-        """
-        Learn the relationship of ODE parameter values and delayed OxCGRT scores using Elastic Net regression,
-        assuming that OxCGRT scores will impact on ODE parameter values with delay.
-        Min-max scaling and Elastic net regression with parameter optimization and cross validation.
-
-        Args:
-            oxcgrt_data (covsirphy.OxCGRTData): OxCGRT dataset, deprecated
-            name (str): scenario name
-            test_size (float): proportion of the test dataset of Elastic Net regression
-            seed (int): random seed when spliting the dataset to train/test data
-            delay (int): delay period [days], please refer to Scenario.estimate_delay()
-            removed_cols (list[str] or None): list of variables to remove from X dataset or None (indicators used to estimate delay period)
-            days
-
-        Raises:
-            covsirphy.UnExecutedError: Scenario.estimate() or Scenario.add() were not performed
-
-        Returns:
-
-        Note:
-            @oxcgrt_data argument was deprecated. Please use Scenario.register(extras=[oxcgrt_data]).
-        """
-        warnings.simplefilter("ignore", category=ConvergenceWarning)
-        # Register OxCGRT data
-        if oxcgrt_data is not None:
-            warnings.warn(
-                "Please use Scenario.register(extras=[oxcgrt_data]) rather than Scenario.fit(oxcgrt_data).",
-                DeprecationWarning, stacklevel=1)
-            self.register(extras=[oxcgrt_data])
-        # ODE model
-        model = self._tracker(name).last_model
-        if model is None:
-            raise UnExecutedError(
-                "Scenario.estimate() or Scenario.add()",
-                message=f", specifying @model (covsirphy.SIRF etc.) and @name='{name}'.")
-        # Set delay effect
-        if delay is None:
-            delay, delay_df = self.estimate_delay(oxcgrt_data)
-            removed_cols = list(set(delay_df.columns.tolist()) | set(removed_cols or []))
-        else:
-            delay = self._ensure_natural_int(delay, name="delay")
-            removed_cols = removed_cols or None
-        # Create training/test dataset
-        try:
-            X, y, X_target = self._fit_create_data(
-                model=model, name=name, delay=delay, removed_cols=removed_cols)
-        except NotRegisteredExtraError:
-            raise NotRegisteredExtraError(
-                "Scenario.register(jhu_data, population_data, extras=[...])",
-                message="with extra datasets") from None
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=seed)
-        
-        # Prepare Dataset for Training Light GBM
-
-        yTrainRho = y_train['rho'].to_list()
-        yTrainRhoDF = pd.DataFrame(yTrainRho)
-
-        yTrainSigma = y_train['sigma'].to_list()
-        yTrainSigmaDF = pd.DataFrame(yTrainSigma)
-
-        yTestRho = y_test['rho'].to_list()
-        yTestRhoDF = pd.DataFrame(yTestRho)
-
-        yTestSigma = y_test['sigma'].to_list()
-        yTestSigmaDF = pd.DataFrame(yTestSigma)
-
-        # Training Function
-
-        def _rho_objective_tuning(trial):
-            # Rho
-            trainRho = lgb.Dataset(X_train, yTrainRhoDF)
-            valRho = lgb.Dataset(X_test, yTestRhoDF, reference=trainRho)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 256),
-                #'max_depth': trial.suggest_int('max_depth', 2, 3),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 15),
-                #"max_depth": trial.suggest_int("max_depth", 2, 4),
-                "num_leaves" : trial.suggest_int("num_leaves", 2, 7),
-                "max_depth": trial.suggest_int("max_depth", 2, 3),
-                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
-                #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
-                #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                "bagging_freq": 5,
-                "verbose": 0
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
-            preds = model.predict(X_test)
-            accuracy =  mean_absolute_error(yTestRhoDF, preds)
-            return accuracy
-
-        def _sigma_objective_tuning(trial):
-            # Sigma
-            trainSigma = lgb.Dataset(X_train, yTrainSigmaDF)
-            valSigma = lgb.Dataset(X_test, yTestSigmaDF, reference=trainSigma)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 256),
-                #'max_depth': trial.suggest_int('max_depth', 2, 3),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 15),
-                #"max_depth": trial.suggest_int("max_depth", 2, 4),
-                "num_leaves" : trial.suggest_int("num_leaves", 2, 7),
-                "max_depth": trial.suggest_int("max_depth", 2, 3),
-                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
-                #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
-                #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                "bagging_freq": 5,
-                "verbose": 0
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
-            preds = model.predict(X_test)
-            accuracy =  mean_absolute_error(yTestSigmaDF, preds)
-            return accuracy
-        
-        # Tuning Process by Calling All of the Tuning Functions
-
-        train_parameter_rho = dict()
-        train_parameter_sigma = dict()
-
-        # Rho
-        print("==== TUNING TRAIN RHO ===")
-        study3 = optuna.create_study(direction="maximize")
-        study3.optimize(_rho_objective_tuning, n_trials=1000)
-
-        trial3 = study3.best_trial
-        for key, value in trial3.params.items():
-            train_parameter_rho[key] = value
-
-        # Sigma
-        print("==== TUNING TRAIN SIGMA ===")
-        study4 = optuna.create_study(direction="maximize")
-        study4.optimize(_sigma_objective_tuning, n_trials=1000)
-
-        trial4 = study4.best_trial
-        for key, value in trial4.params.items():
-            train_parameter_sigma[key] = value
-
-        # Predict Function
-
-        def _rho_objective_predict(paramsDict, dataPred):
-
-            parameters = paramsDict.copy()
-
-            # Rho
-            trainRho = lgb.Dataset(X_train, yTrainRhoDF)
-            valRho = lgb.Dataset(X_test, yTestRhoDF, reference=trainRho)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                "num_leaves" : int(parameters["num_leaves"]),
-                "max_depth": int(parameters["max_depth"]),
-                "learning_rate" : float(parameters["learning_rate"]),
-                "bagging_fraction": float(parameters["bagging_fraction"]),
-                "feature_fraction": float(parameters["feature_fraction"]),
-                "bagging_freq": 5,
-                "verbose": -1
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
-            preds = model.predict(dataPred)
-
-            return preds
-
-        def _sigma_objective_predict(paramsDict, dataPred):
-
-            parameters = paramsDict.copy()
-
-            # Sigma
-            trainSigma = lgb.Dataset(X_train, yTrainSigmaDF)
-            valSigma = lgb.Dataset(X_test, yTestSigmaDF, reference=trainSigma)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                "num_leaves" : int(parameters["num_leaves"]),
-                "max_depth": int(parameters["max_depth"]),
-                "learning_rate" : float(parameters["learning_rate"]),
-                "bagging_fraction": float(parameters["bagging_fraction"]),
-                "feature_fraction": float(parameters["feature_fraction"]),
-                "bagging_freq": 5,
-                "verbose": -1
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
-            preds = model.predict(dataPred)
-
-            return preds       
-
-        print("==== PREDICTING RHO ===")
-        rho_predicted = _rho_objective_predict(train_parameter_rho, X_target)
-        rho_predicted = rho_predicted.tolist()
-
-        print("==== PREDICTING SIGMA ===")
-        sigma_predicted = _sigma_objective_predict(train_parameter_sigma, X_target)
-        sigma_predicted = sigma_predicted.tolist()
-
-        predictedData = pd.DataFrame(list(zip(rho_predicted, sigma_predicted)))
-        predictedData = predictedData.to_numpy()
-
-        # Train Score Function
-
-        print("=== SCORING RHO ===")
-        rho_score = dict()
-        rho_train_score_data = _rho_objective_predict(train_parameter_rho, X_test)
-        rho_score['rho_mape'] = mean_absolute_percentage_error(yTestRhoDF, rho_train_score_data)
-        rho_score['rho_r2'] = r2_score(yTestRhoDF, rho_train_score_data)
-
-        print("=== SCORING SIGMA ===")
-        sigma_score = dict()
-        sigma_train_score_data = _sigma_objective_predict(train_parameter_sigma, X_test)
-        sigma_score['sigma_mape'] = mean_absolute_percentage_error(yTestSigmaDF, sigma_train_score_data)
-        sigma_score['sigma_r2'] = r2_score(yTestSigmaDF, sigma_train_score_data)
-
-        # -> end_date/parameter values
-        df = pd.DataFrame(predictedData, index=X_target.index, columns=model.PARAMETERS)
-        df = df.applymap(lambda x: np.around(x, 4 - int(floor(log10(abs(x)))) - 1))
-        df.index = [date.strftime(self.DATE_FORMAT) for date in df.index]
-        df.index.name = "end_date"
-        # Days to predict
-        days = days or [len(X_target) - 1]
-        self._ensure_list(days, candidates=list(range(len(X_target))), name="days")
-        phase_df = df.reset_index().loc[days, :]
-        # Set new future phases
-        for phase_dict in phase_df.to_dict(orient="records"):
-            self.add(name=name, **phase_dict)
-        return self, rho_score, train_parameter_rho, sigma_score, train_parameter_sigma
-
-    def fit_predict_sirf_lgbm(self, oxcgrt_data=None, name="Main", test_size=0.2, seed=0, delay=None, removed_cols=None, days=None):
-        """
-        Learn the relationship of ODE parameter values and delayed OxCGRT scores using Elastic Net regression,
-        assuming that OxCGRT scores will impact on ODE parameter values with delay.
-        Min-max scaling and Elastic net regression with parameter optimization and cross validation.
-
-        Args:
-            oxcgrt_data (covsirphy.OxCGRTData): OxCGRT dataset, deprecated
-            name (str): scenario name
-            test_size (float): proportion of the test dataset of Elastic Net regression
-            seed (int): random seed when spliting the dataset to train/test data
-            delay (int): delay period [days], please refer to Scenario.estimate_delay()
-            removed_cols (list[str] or None): list of variables to remove from X dataset or None (indicators used to estimate delay period)
-
-        Raises:
-            covsirphy.UnExecutedError: Scenario.estimate() or Scenario.add() were not performed
-
-        Returns:
-            dict(str, object):
-                - scaler (object): scaler class
-                - regressor (object): regressor class
-                - alpha (float): alpha value used in Elastic Net regression
-                - l1_ratio (float): l1_ratio value used in Elastic Net regression
-                - score_train (float): determination coefficient of train dataset
-                - score_test (float): determination coefficient of test dataset
-                - X_train (numpy.array): X_train
-                - y_train (numpy.array): y_train
-                - X_test (numpy.array): X_test
-                - y_test (numpy.array): y_test
-                - X_target (numpy.array): X_target
-                - intercept (pandas.DataFrame): intercept and coefficients (Index ODE parameters, Columns indicators)
-                - coef (pandas.DataFrame): intercept and coefficients (Index ODE parameters, Columns indicators)
-                - delay (int): number of days of delay between policy measure and effect
-                  on number of confirmed cases.
-
-        Note:
-            @oxcgrt_data argument was deprecated. Please use Scenario.register(extras=[oxcgrt_data]).
-        """
-        warnings.simplefilter("ignore", category=ConvergenceWarning)
-        # Register OxCGRT data
-        if oxcgrt_data is not None:
-            warnings.warn(
-                "Please use Scenario.register(extras=[oxcgrt_data]) rather than Scenario.fit(oxcgrt_data).",
-                DeprecationWarning, stacklevel=1)
-            self.register(extras=[oxcgrt_data])
-        # ODE model
-        model = self._tracker(name).last_model
-        if model is None:
-            raise UnExecutedError(
-                "Scenario.estimate() or Scenario.add()",
-                message=f", specifying @model (covsirphy.SIRF etc.) and @name='{name}'.")
-        # Set delay effect
-        if delay is None:
-            delay, delay_df = self.estimate_delay(oxcgrt_data)
-            removed_cols = list(set(delay_df.columns.tolist()) | set(removed_cols or []))
-        else:
-            delay = self._ensure_natural_int(delay, name="delay")
-            removed_cols = removed_cols or None
-        # Create training/test dataset
-        try:
-            X, y, X_target = self._fit_create_data(
-                model=model, name=name, delay=delay, removed_cols=removed_cols)
-        except NotRegisteredExtraError:
-            raise NotRegisteredExtraError(
-                "Scenario.register(jhu_data, population_data, extras=[...])",
-                message="with extra datasets") from None
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=seed)
-        
-        # Prepare Dataset for Training Light GBM
-        yTrainTheta = y_train['theta'].to_list()
-        yTrainThetaDF = pd.DataFrame(yTrainTheta)
-
-        yTrainKappa = y_train['kappa'].to_list()
-        yTrainKappaDF = pd.DataFrame(yTrainKappa)
-
-        yTrainRho = y_train['rho'].to_list()
-        yTrainRhoDF = pd.DataFrame(yTrainRho)
-
-        yTrainSigma = y_train['sigma'].to_list()
-        yTrainSigmaDF = pd.DataFrame(yTrainSigma)
-
-        yTestTheta = y_test['theta'].to_list()
-        yTestThetaDF = pd.DataFrame(yTestTheta)
-
-        yTestKappa = y_test['kappa'].to_list()
-        yTestKappaDF = pd.DataFrame(yTestKappa)
-
-        yTestRho = y_test['rho'].to_list()
-        yTestRhoDF = pd.DataFrame(yTestRho)
-
-        yTestSigma = y_test['sigma'].to_list()
-        yTestSigmaDF = pd.DataFrame(yTestSigma)
-
-        # Training Function
-
-        def _theta_objective_tuning(trial):
-            # Theta
-            trainTheta = lgb.Dataset(X_train, yTrainThetaDF)
-            valTheta = lgb.Dataset(X_test, yTestThetaDF, reference=trainTheta)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 256),
-                #'max_depth': trial.suggest_int('max_depth', 2, 3),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 15),
-                #"max_depth": trial.suggest_int("max_depth", 2, 4),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 7),
-                #"max_depth": trial.suggest_int("max_depth", 2, 3),
-                "num_leaves" : trial.suggest_int("num_leaves", 2, 255),
-                "max_depth": trial.suggest_int("max_depth", 2, 8),
-                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
-                #"learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.001009),
-                #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
-                #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                "bagging_freq": 5,
-                #"bagging_freq": 2,
-                #"num_iterations": 1000,
-                "verbose": 0
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainTheta, num_boost_round=20,valid_sets=valTheta, early_stopping_rounds=10)
-            preds = model.predict(X_test)
-            accuracy =  mean_absolute_error(yTestThetaDF, preds)
-            return accuracy
-        
-        def _kappa_objective_tuning(trial):
-            # Kappa
-            trainKappa = lgb.Dataset(X_train, yTrainKappaDF)
-            valKappa = lgb.Dataset(X_test, yTestKappaDF, reference=trainKappa)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 256),
-                #'max_depth': trial.suggest_int('max_depth', 2, 3),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 15),
-                #"max_depth": trial.suggest_int("max_depth", 2, 4),
-               #"num_leaves" : trial.suggest_int("num_leaves", 2, 7),
-                #"max_depth": trial.suggest_int("max_depth", 2, 3),
-                "num_leaves" : trial.suggest_int("num_leaves", 2, 255),
-                "max_depth": trial.suggest_int("max_depth", 2, 8),
-                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
-                #"learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.001009),
-                #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
-                #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                "bagging_freq": 5,
-                #"bagging_freq": 2,
-                #"num_iterations": 1000,
-                "verbose": 0
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainKappa, num_boost_round=20,valid_sets=valKappa, early_stopping_rounds=10)
-            preds = model.predict(X_test)
-            accuracy =  mean_absolute_error(yTestKappaDF, preds)
-            return accuracy
-        
-        def _rho_objective_tuning(trial):
-            # Rho
-            trainRho = lgb.Dataset(X_train, yTrainRhoDF)
-            valRho = lgb.Dataset(X_test, yTestRhoDF, reference=trainRho)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 256),
-                #'max_depth': trial.suggest_int('max_depth', 2, 3),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 15),
-                #"max_depth": trial.suggest_int("max_depth", 2, 4),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 7),
-                #"max_depth": trial.suggest_int("max_depth", 2, 3),
-                "num_leaves" : trial.suggest_int("num_leaves", 2, 255),
-                "max_depth": trial.suggest_int("max_depth", 2, 8),
-                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
-                #"learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.001009),
-                #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
-                #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                "bagging_freq": 5,
-                #"bagging_freq": 2,
-                #"num_iterations": 1000,
-                "verbose": 0
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
-            preds = model.predict(X_test)
-            accuracy =  mean_absolute_error(yTestRhoDF, preds)
-            return accuracy
-
-        def _sigma_objective_tuning(trial):
-            # Sigma
-            trainSigma = lgb.Dataset(X_train, yTrainSigmaDF)
-            valSigma = lgb.Dataset(X_test, yTestSigmaDF, reference=trainSigma)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 256),
-                #'max_depth': trial.suggest_int('max_depth', 2, 3),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 15),
-                #"max_depth": trial.suggest_int("max_depth", 2, 4),
-                #"num_leaves" : trial.suggest_int("num_leaves", 2, 7),
-                #"max_depth": trial.suggest_int("max_depth", 2, 3),
-                "num_leaves" : trial.suggest_int("num_leaves", 2, 255),
-                "max_depth": trial.suggest_int("max_depth", 2, 8),
-                "learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.1),
-                #"learning_rate" : trial.suggest_float("learning_rate", 0.001, 0.001009),
-                #"bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.1, 1.0),
-                #"feature_fraction": trial.suggest_uniform('feature_fraction', 0.4, 1.0),
-                "bagging_fraction": trial.suggest_uniform('bagging_fraction', 0.6, 1.0),
-                "feature_fraction": trial.suggest_uniform('feature_fraction', 0.6, 1.0),
-                "bagging_freq": 5,
-                #"bagging_freq": 2,
-                #"num_iterations": 1000,
-                "verbose": 0
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
-            preds = model.predict(X_test)
-            accuracy =  mean_absolute_error(yTestSigmaDF, preds)
-            return accuracy
-        
-        # Tuning Process by Calling All of the Tuning Functions
-
-        train_parameter_theta = dict()
-        train_parameter_kappa = dict()
-        train_parameter_rho = dict()
-        train_parameter_sigma = dict()
-
-        # Theta
-        print("==== TUNING TRAIN THETA ===")
-        study = optuna.create_study(direction="maximize")
-        study.optimize(_theta_objective_tuning, n_trials=1000)
-
-        trial = study.best_trial
-        for key, value in trial.params.items():
-            train_parameter_theta[key] = value
-
-        # Kappa
-        print("==== TUNING TRAIN KAPPA ===")
-        study2 = optuna.create_study(direction="maximize")
-        study2.optimize(_kappa_objective_tuning, n_trials=1000)
-
-        trial2 = study2.best_trial
-        for key, value in trial2.params.items():
-            train_parameter_kappa[key] = value
-
-        # Rho
-        print("==== TUNING TRAIN RHO ===")
-        study3 = optuna.create_study(direction="maximize")
-        study3.optimize(_rho_objective_tuning, n_trials=1000)
-
-        trial3 = study3.best_trial
-        for key, value in trial3.params.items():
-            train_parameter_rho[key] = value
-
-        # Sigma
-        print("==== TUNING TRAIN SIGMA ===")
-        study4 = optuna.create_study(direction="maximize")
-        study4.optimize(_sigma_objective_tuning, n_trials=1000)
-
-        trial4 = study4.best_trial
-        for key, value in trial4.params.items():
-            train_parameter_sigma[key] = value
-
-        # Predict Function
-
-        def _theta_objective_predict(paramsDict, dataPred):
-
-            parameters = paramsDict.copy()
-
-            # Theta
-            trainTheta = lgb.Dataset(X_train, yTrainThetaDF)
-            valTheta = lgb.Dataset(X_test, yTestThetaDF, reference=trainTheta)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                "num_leaves" : int(parameters["num_leaves"]),
-                "max_depth": int(parameters["max_depth"]),
-                "learning_rate" : float(parameters["learning_rate"]),
-                "bagging_fraction": float(parameters["bagging_fraction"]),
-                "feature_fraction": float(parameters["feature_fraction"]),
-                "bagging_freq": 5,
-                "verbose": -1
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainTheta, num_boost_round=20,valid_sets=valTheta, early_stopping_rounds=10)
-            preds = model.predict(dataPred)
-
-            return preds
-        
-        def _kappa_objective_predict(paramsDict, dataPred):
-
-            parameters = paramsDict.copy()
-            
-            # Kappa
-            trainKappa = lgb.Dataset(X_train, yTrainKappaDF)
-            valKappa = lgb.Dataset(X_test, yTestKappaDF, reference=trainKappa)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                "num_leaves" : int(parameters["num_leaves"]),
-                "max_depth": int(parameters["max_depth"]),
-                "learning_rate" : float(parameters["learning_rate"]),
-                "bagging_fraction": float(parameters["bagging_fraction"]),
-                "feature_fraction": float(parameters["feature_fraction"]),
-                "bagging_freq": 5,
-                "verbose": -1
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainKappa, num_boost_round=20,valid_sets=valKappa, early_stopping_rounds=10)
-            preds = model.predict(dataPred)
-
-            return preds
-
-        def _rho_objective_predict(paramsDict, dataPred):
-
-            parameters = paramsDict.copy()
-
-            # Rho
-            trainRho = lgb.Dataset(X_train, yTrainRhoDF)
-            valRho = lgb.Dataset(X_test, yTestRhoDF, reference=trainRho)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                "num_leaves" : int(parameters["num_leaves"]),
-                "max_depth": int(parameters["max_depth"]),
-                "learning_rate" : float(parameters["learning_rate"]),
-                "bagging_fraction": float(parameters["bagging_fraction"]),
-                "feature_fraction": float(parameters["feature_fraction"]),
-                "bagging_freq": 5,
-                "verbose": -1
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainRho, num_boost_round=20,valid_sets=valRho, early_stopping_rounds=10)
-            preds = model.predict(dataPred)
-
-            return preds
-
-        def _sigma_objective_predict(paramsDict, dataPred):
-
-            parameters = paramsDict.copy()
-
-            # Sigma
-            trainSigma = lgb.Dataset(X_train, yTrainSigmaDF)
-            valSigma = lgb.Dataset(X_test, yTestSigmaDF, reference=trainSigma)
-
-            params = {
-                "boosting_type": "gbdt",
-                "metric" : "mae",
-                "objective" : "regression",
-                "num_leaves" : int(parameters["num_leaves"]),
-                "max_depth": int(parameters["max_depth"]),
-                "learning_rate" : float(parameters["learning_rate"]),
-                "bagging_fraction": float(parameters["bagging_fraction"]),
-                "feature_fraction": float(parameters["feature_fraction"]),
-                "bagging_freq": 5,
-                "verbose": -1
-            }
-
-            # Model for Theta
-            model = lgb.train(params, trainSigma, num_boost_round=20,valid_sets=valSigma, early_stopping_rounds=10)
-            preds = model.predict(dataPred)
-
-            return preds       
-
-        print("==== PREDICTING THETA ===")
-        theta_predicted = _theta_objective_predict(train_parameter_theta, X_target)
-        theta_predicted = theta_predicted.tolist()
-
-        print("==== PREDICTING KAPPA ===")
-        kappa_predicted = _kappa_objective_predict(train_parameter_kappa, X_target)
-        kappa_predicted = kappa_predicted.tolist()
-
-        print("==== PREDICTING RHO ===")
-        rho_predicted = _rho_objective_predict(train_parameter_rho, X_target)
-        rho_predicted = rho_predicted.tolist()
-
-        print("==== PREDICTING SIGMA ===")
-        sigma_predicted = _sigma_objective_predict(train_parameter_sigma, X_target)
-        sigma_predicted = sigma_predicted.tolist()
-
-        predictedData = pd.DataFrame(list(zip(theta_predicted, kappa_predicted, rho_predicted, sigma_predicted)))
-        predictedData = predictedData.to_numpy()
-
-        # Train Score Function
-
-        print("=== SCORING THETA ===")
-        theta_score = dict()
-        theta_train_score_data = _theta_objective_predict(train_parameter_theta, X_test)
-        theta_score['theta_mape'] = mean_absolute_percentage_error(yTestThetaDF, theta_train_score_data)
-        theta_score['theta_r2'] = r2_score(yTestThetaDF, theta_train_score_data)
-
-        print("=== SCORING KAPPA ===") 
-        kappa_score = dict()
-        kappa_train_score_data = _kappa_objective_predict(train_parameter_kappa, X_test)
-        kappa_score['kappa_mape'] = mean_absolute_percentage_error(yTestKappaDF, kappa_train_score_data)
-        kappa_score['kappa_r2'] = r2_score(yTestKappaDF, kappa_train_score_data)
-
-        print("=== SCORING RHO ===")
-        rho_score = dict()
-        rho_train_score_data = _rho_objective_predict(train_parameter_rho, X_test)
-        rho_score['rho_mape'] = mean_absolute_percentage_error(yTestRhoDF, rho_train_score_data)
-        rho_score['rho_r2'] = r2_score(yTestRhoDF, rho_train_score_data)
-
-        print("=== SCORING SIGMA ===")
-        sigma_score = dict()
-        sigma_train_score_data = _sigma_objective_predict(train_parameter_sigma, X_test)
-        sigma_score['sigma_mape'] = mean_absolute_percentage_error(yTestSigmaDF, sigma_train_score_data)
-        sigma_score['sigma_r2'] = r2_score(yTestSigmaDF, sigma_train_score_data)
-
-        # -> end_date/parameter values
-        df = pd.DataFrame(predictedData, index=X_target.index, columns=model.PARAMETERS)
-        df = df.applymap(lambda x: np.around(x, 4 - int(floor(log10(abs(x)))) - 1))
-        df.index = [date.strftime(self.DATE_FORMAT) for date in df.index]
-        df.index.name = "end_date"
-        # Days to predict
-        days = days or [len(X_target) - 1]
-        self._ensure_list(days, candidates=list(range(len(X_target))), name="days")
-        phase_df = df.reset_index().loc[days, :]
-        # Set new future phases
-        for phase_dict in phase_df.to_dict(orient="records"):
-            self.add(name=name, **phase_dict)
-        return self, theta_score, train_parameter_theta, kappa_score, train_parameter_kappa, rho_score, train_parameter_rho, sigma_score, train_parameter_sigma
