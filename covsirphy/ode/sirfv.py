@@ -23,7 +23,7 @@ class SIRFV(ModelBase):
     PARAMETERS = ["theta", "kappa", "rho", "sigma", "omega"]
     DAY_PARAMETERS = [
         "alpha1 [-]", "1/alpha2 [day]", "1/beta [day]", "1/gamma [day]",
-        "Vaccinated [persons]"
+        "Vaccination rate [day]"
     ]
     # Variable names in (non-dim, dimensional) ODEs
     VAR_DICT = {
@@ -35,7 +35,7 @@ class SIRFV(ModelBase):
     }
     VARIABLES = list(VAR_DICT.values())
     # Weights of variables in parameter estimation error function
-    WEIGHTS = np.array([0, 10, 10, 2, 0])
+    WEIGHTS = np.array([0, 10, 10, 2, 2])
     # Variables that increases monotonically
     VARS_INCLEASE = [ModelBase.R, ModelBase.F]
     # Example set of parameters and initial values
