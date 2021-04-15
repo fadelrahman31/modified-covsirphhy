@@ -35,7 +35,7 @@ class SIRFV(ModelBase):
     }
     VARIABLES = list(VAR_DICT.values())
     # Weights of variables in parameter estimation error function
-    WEIGHTS = np.array([0, 10, 10, 2, 2])
+    WEIGHTS = np.array([0, 10, 10, 2, 0])
     # Variables that increases monotonically
     VARS_INCLEASE = [ModelBase.R, ModelBase.F]
     # Example set of parameters and initial values
@@ -179,7 +179,8 @@ class SIRFV(ModelBase):
         #df[cls.S] = 0
         #df[cls.V] = 0
         df[cls.S] = population - df[cls.C]
-        df[cls.V] = df[cls.R] - df[cls.CI]
+        #df[cls.V] = df[cls.R] - df[cls.CI]
+        df[cls.V] = 0
         return df
 
     @classmethod
