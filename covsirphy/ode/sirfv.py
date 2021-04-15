@@ -89,9 +89,9 @@ class SIRFV(ModelBase):
         n = self.population
         s, i, *_ = X
         beta_si = self.rho * s * i / n
-        dsdt = max(0 - beta_si - self.omega, - s)
+        dsdt = 0 - beta_si - self.omega
         dvdt = 0 - dsdt - beta_si
-        drdt = self.sigma * i + self.omega
+        drdt = (self.sigma * i) + self.omega
         dfdt = self.kappa * i + (0 - beta_si) * self.theta
         didt = 0 - dsdt - drdt - dfdt - dvdt
         return np.array([dsdt, didt, drdt, dfdt, dvdt])
@@ -179,8 +179,8 @@ class SIRFV(ModelBase):
         #df[cls.S] = 0
         #df[cls.V] = 0
         df[cls.S] = population - df[cls.C]
-        #df[cls.V] = df[cls.R] - df[cls.CI]
-        df[cls.V] = 0
+        df[cls.V] = df[cls.R] - df[cls.CI]
+        #df[cls.V] = 0
         return df
 
     @classmethod
