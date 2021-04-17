@@ -27,7 +27,7 @@ class SIRV(ModelBase):
     }
     VARIABLES = list(VAR_DICT.values())
     # Weights of variables in parameter estimation error function
-    WEIGHTS = np.array([1, 1, 1, 0])
+    WEIGHTS = np.array([1, 1, 1, 0, 0])
     # Variables that increases monotonically
     VARS_INCLEASE = [ModelBase.FR]
     # Example set of parameters and initial values
@@ -38,7 +38,8 @@ class SIRV(ModelBase):
             "rho": 0.2, "sigma": 0.075, "omega": 0.001
         },
         ModelBase.Y0_DICT: {
-            ModelBase.S: 999_000, ModelBase.CI: 1000, ModelBase.FR: 0
+            ModelBase.S: 999_000, ModelBase.CI: 1000, ModelBase.FR: 0,
+            ModelBase.V: 0,
         },
     }
 
@@ -67,9 +68,10 @@ class SIRV(ModelBase):
         n = self.population
         s, i, *_ = X
         dsdt = 0 - self.rho * s * i / n - self.omega
+        dvdt = self.omega
         drdt = self.sigma * i + self.omega
-        didt = 0 - dsdt - drdt
-        return np.array([dsdt, didt, drdt])
+        didt = 0 - dsdt - drdt - dvdt
+        return np.array([dsdt, didt, drdt, dvdt])
 
     @classmethod
     def param_range(cls, taufree_df, population, quantiles=(0.1, 0.9)):
@@ -137,6 +139,7 @@ class SIRV(ModelBase):
         # Calculate dimensional variables
         df[cls.S] = population - df[cls.C]
         df[cls.FR] = df[cls.F] + df[cls.R]
+        df[cls.V] = df[cls.R] - df[cls.CI]
         return df
 
     @classmethod
