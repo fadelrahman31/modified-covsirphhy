@@ -51,6 +51,7 @@ from covsirphy.ode.sird import SIRD
 from covsirphy.ode.sirf import SIRF
 from covsirphy.ode.sirfv import SIRFV
 from covsirphy.ode.sewirf import SEWIRF
+from covsirphy.ode.sirv import SIRV
 # simulation
 from covsirphy.simulation.estimator import Estimator, Optimizer
 from covsirphy.simulation.simulator import ODESimulator
