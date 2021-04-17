@@ -18,7 +18,7 @@ class SIRV(ModelBase):
     NAME = "SIRV"
     # names of parameters
     PARAMETERS = ["rho", "sigma", "omega"]
-    DAY_PARAMETERS = ["1/beta [day]", "1/gamma [day]", "Vaccination rate [day]]
+    DAY_PARAMETERS = ["1/beta [day]", "1/gamma [day]", "Vaccination rate [day]"]
     # Variable names in (non-dim, dimensional) ODEs
     VAR_DICT = {
         "x": ModelBase.S,
