@@ -23,11 +23,12 @@ class SIRV(ModelBase):
     VAR_DICT = {
         "x": ModelBase.S,
         "y": ModelBase.CI,
-        "z": ModelBase.FR
+        "z": ModelBase.FR,
+        "v": ModelBase.V
     }
     VARIABLES = list(VAR_DICT.values())
     # Weights of variables in parameter estimation error function
-    WEIGHTS = np.array([1, 1, 1, 0, 0])
+    WEIGHTS = np.array([1, 1, 1, 0])
     # Variables that increases monotonically
     VARS_INCLEASE = [ModelBase.FR]
     # Example set of parameters and initial values
