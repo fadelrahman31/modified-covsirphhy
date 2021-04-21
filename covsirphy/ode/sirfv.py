@@ -89,7 +89,8 @@ class SIRFV(ModelBase):
         n = self.population
         s, i, *_ = X
         beta_si = self.rho * s * i / n
-        dsdt = 0 - beta_si - self.omega
+        #dsdt = 0 - beta_si - self.omega
+        dsdt = max(0 - beta_si - self.omega, -s)
         dvdt = 0 - dsdt - beta_si
         drdt = (self.sigma * i) + self.omega
         dfdt = self.kappa * i + (0 - beta_si) * self.theta

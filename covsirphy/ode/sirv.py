@@ -182,7 +182,7 @@ class SIRV(ModelBase):
         """
         Calculate (basic) reproduction number.
 
-        Returns:
+        Returns:  
             float
         """
         try:
